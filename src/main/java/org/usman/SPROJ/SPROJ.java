@@ -89,7 +89,7 @@ public class SPROJ {
 		return param;
 	}
 	public static String getFormatedFunctionCall(BasicBlockInstruction instruction) {
-		DexBackedInstruction35c i = (DexBackedInstruction35c)instruction.instruction;
+		ReferenceInstruction i = (ReferenceInstruction)instruction.instruction;
 		DexBackedMethodReference r = (DexBackedMethodReference)i.getReference();
 		
 		// Get information e.g defining class, parameters, function name, return type etc
