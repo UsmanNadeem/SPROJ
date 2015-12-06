@@ -13,9 +13,11 @@ If you have Maven, the build script should run the correct command:
 
 This will create a file:
 
-`target/SPROJ-0.1-jar-with-dependencies.jar`
+`target/SPROJ-1.0-jar-with-dependencies.jar`
 
 ## Running ##
 
-`java -jar target/SPROJ-0.1-jar-with-dependencies.jar <classes.dex/apkfile> <com/example/android/bluetoothchat/>`
-`where com/example/android/bluetoothchat/ is the package of interest`
+`java -jar target/SPROJ-1.0-jar-with-dependencies.jar app.apk com/example/android/bluetoothchat/`
+
+	where: com/example/android/bluetoothchat/ is the package of interest in your app
+	

@@ -5,7 +5,7 @@
   <groupId>org.usman.SPROJ</groupId>
   <artifactId>SPROJ</artifactId>
   <packaging>jar</packaging>
-  <version>0.1</version>
+  <version>1.0</version>
   <name>SPROJ</name>
   <url>http://maven.apache.org</url>
 
@@ -71,7 +71,7 @@
       <configuration>
         <archive>
           <manifest>
-            <mainClass>org.talos.SPROJ.SPROJ</mainClass>
+            <mainClass>org.usman.SPROJ.SPROJ</mainClass>
           </manifest>
         </archive>
         <descriptorRefs>

@@ -516,7 +516,7 @@ public class SPROJ {
 						    	// sink found
 						    	String sink = SPROJ.getFormatedFunctionCall(ins);
 						        if (line.startsWith(sink)) {
-									System.out.println("****************LEAK FOUND:");
+									System.out.println("****************LEAK FOUND:****************");
 									System.out.println(location);
 									System.out.println("sink = " + sink);
 									break;
@@ -591,7 +591,7 @@ public class SPROJ {
 						    	// sink found
 						    	String sink = SPROJ.getFormatedFunctionCall(ins);
 						        if (line.startsWith(sink)) {
-									System.out.println("****************LEAK FOUND:");
+									System.out.println("****************LEAK FOUND:****************");
 									System.out.println(location);
 									System.out.println("sink = " + sink);
 									break;
