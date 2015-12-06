@@ -350,9 +350,10 @@ public class SPROJ {
 
 				}
 			}
-		}
-		for (String line : toPrint) {
-			System.out.println(line);
+			for (String line : toPrint) {
+				System.out.println(line);
+			}
+			toPrint.clear();
 		}
 	}
 
@@ -485,7 +486,8 @@ public class SPROJ {
 	public static void searchForPathtoSink(BasicBlockInstruction instruction, BasicBlock basicblock, List<BasicBlock> basicblocks, String location) throws IOException{
 		TreeSet<Object> possibleSourceVars = SPROJ.getVarThisFunctionTouches(instruction);
 		int i = basicblock.instructions.indexOf(instruction);
-		if (basicblock.instructions.get(i+1).instruction.getOpcode().format == Format.Format11x) {
+
+		if (i+1 <basicblock.instructions.size() && basicblock.instructions.get(i+1).instruction.getOpcode().format == Format.Format11x) {
 			i+=2;
 			possibleSourceVars.addAll(SPROJ.getVarThisFunctionTouches(basicblock.instructions.get(i-1)));
 		}
