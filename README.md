@@ -21,3 +21,11 @@ This will create a file:
 
 	where: com/example/android/bluetoothchat/ is the package of interest in your app
 	l means find leaks and d means display all sources and sinks
+
+e.g to find leaks in com/example/android/bluetooth package of app.apk(bluetoothchat) execute
+
+	java -jar target/SPROJ-1.0-jar-with-dependencies.jar app.apk com/example/android/bluetoothchat/ l
+
+or even with a less precise package name
+
+	java -jar target/SPROJ-1.0-jar-with-dependencies.jar app.apk com/ l
