@@ -464,7 +464,7 @@ public class SPROJ {
 						    while ((line = br.readLine()) != null) {
 						    	// source found
 						        if (line.startsWith(possibleSourceSink)) {
-									SPROJ.searchForPathtoSink(instruction, basicblock, basicblocks, "In Class: "+classDef.getSourceFile()+" In function: "+method.getName()+ "\nSource: "+possibleSourceSink);
+									SPROJ.searchForPathtoSink(instruction, basicblock, basicblocks, "In Class: "+classDef.getSourceFile()+" In function: "+method.getName()+ "\nSource: "+line);
 									break;
 						        }
 						    }
@@ -540,7 +540,7 @@ public class SPROJ {
 						        if (line.startsWith(sink)) {
 									System.out.println("****************LEAK FOUND:****************");
 									System.out.println(location);
-									System.out.println("sink = " + sink);
+									System.out.println("sink = " + line);
 									break;
 						        }
 						    }
@@ -629,7 +629,7 @@ public class SPROJ {
 						        if (line.startsWith(sink)) {
 									System.out.println("****************LEAK FOUND:****************");
 									System.out.println(location);
-									System.out.println("sink = " + sink);
+									System.out.println("sink = " + line);
 									break;
 						        }
 						    }
