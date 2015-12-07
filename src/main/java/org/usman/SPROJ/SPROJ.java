@@ -396,16 +396,27 @@ public class SPROJ {
 	
 	static String CLASS = "L";
 	public static void main(String[] args) throws IOException {
-		if (args.length < 2) {
+		if (args.length < 3) {
 			System.out.println("Usage:");
-			System.out.println("java -jar <jar file> <classes.dex/apkfile> <com/example/android/bluetoothchat/>");
-			System.out.println("Where <com/example/android/bluetoothchat/> is the name of package of interest in the .dex file");
+			System.out.println("\tjava -jar <jar file> <classes.dex/apkfile> <com/example/android/bluetoothchat/> <l or d>");
+			System.out.println("\tWhere <com/example/android/bluetoothchat/> is the name of package of interest in the .dex file");
+			System.out.println("\tand  l means find leaks and d means display all sources and sinks");
 			return;
 		}
 		DexBackedDexFile dexFile = SPROJ.loadFile(args[0]);
 		SPROJ.CLASS += args[1];
-		SPROJ.findAllSourcesSinks(dexFile);
-		SPROJ.findLeaks(dexFile);
+
+		if (args[2].equals("l")) {
+			SPROJ.findLeaks(dexFile);
+		} else if (args[2].equals("d")) {
+			SPROJ.findAllSourcesSinks(dexFile);
+		} else {
+			System.out.println("Usage:");
+			System.out.println("\tjava -jar <jar file> <classes.dex/apkfile> <com/example/android/bluetoothchat/> <l or d>");
+			System.out.println("\tWhere <com/example/android/bluetoothchat/> is the name of package of interest in the .dex file");
+			System.out.println("\tand  l means find leaks and d means display all sources and sinks");
+			return;
+		}
 	}
 
 
