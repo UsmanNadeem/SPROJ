@@ -320,7 +320,7 @@ public class SPROJ {
 											if (!toPrint.contains("\tIn function: "+method.getName())) {
 												toPrint.add("\tIn function: "+method.getName());
 											}
-											toPrint.add("\t\tSink found: "+ possibleSourceSink);
+											toPrint.add("\t\tSink found: "+ line);
 											break;
 								        }
 								    }
@@ -344,7 +344,7 @@ public class SPROJ {
 											if (!toPrint.contains("\tIn function: "+method.getName())) { 
 												toPrint.add("\tIn function: "+method.getName());
 											}
-											toPrint.add("\t\tSource found: "+ possibleSourceSink);
+											toPrint.add("\t\tSource found: "+ line);
 											break;
 								        }
 								    }
