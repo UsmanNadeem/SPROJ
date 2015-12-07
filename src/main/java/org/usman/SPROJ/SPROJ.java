@@ -127,30 +127,38 @@ public class SPROJ {
 		ArrayList<TreeSet<Object>> retval = new ArrayList<TreeSet<Object>>();  // index 0 is source 1 is dest
 		retval.add(new TreeSet<Object>());
 		retval.add(new TreeSet<Object>());
+		retval.add(new TreeSet<Object>());
 		switch (format) {
 			// leave these here for reference. might need some of them later
 			case Format10t:  // goto
 			case Format10x:  // nop, return-void
-			case Format11n:  // move literal
 			case Format20bc:  // throw-verification-error
 			case Format20t:  // goto/16
-			case Format21ih:  // const
-			case Format21lh:  // const
-			case Format21s:  // const
 			case Format21t:  // branch
 			case Format22cs:  // no such instr
 			case Format22t:  // branch
 			// case Format25x:  // no such instr
 			case Format30t:  // goto
-			case Format31c:  // const string jumbo
-			case Format31i:  // const
 			case Format31t:  // packed-switch seems like a jump
 			case Format35ms:  // no such ins
-			case Format35mi:  // no such ins
 			case Format3rmi:
 			case Format3rms:
-			case Format51l:
+			case Format35mi:  // no such ins
 				return null;
+
+			case Format11n:  // move literal getA
+			case Format21ih:  // const getA
+			case Format21lh:  // const getA
+			case Format21s:  // const getA
+			case Format31c:  // const string jumbo getA
+			case Format31i:  // const
+			case Format51l:
+			{
+				OneRegisterInstruction instruction = (OneRegisterInstruction)_instruction.instruction;
+					retval.get(2).add(instruction.getRegisterA());
+				break;
+			}
+
 			case Format12x:
 			{
 				TwoRegisterInstruction instruction = (TwoRegisterInstruction)_instruction.instruction;
@@ -179,6 +187,7 @@ public class SPROJ {
 				// sput 1st is source, 2nd is dest
 				// opcode.name.contains("wide") r+1 is used too
 				if (opcode.name.contains("const")) {
+					retval.get(2).add(instruction.getRegisterA());
 					break;
 				}
 				if (opcode.name.contains("sget")) {
@@ -532,7 +541,14 @@ public class SPROJ {
 				// check for sink too
 			} else {
 				ArrayList<TreeSet<Object>> varsThisInstTouches = SPROJ.getSourceAndDest(ins);
-				if (varsThisInstTouches == null || varsThisInstTouches.get(0) == null || varsThisInstTouches.get(1) == null) {
+				if (varsThisInstTouches != null && varsThisInstTouches.get(2).size() > 0) {
+					for (Object o: varsThisInstTouches.get(2)) {
+						if (possibleSourceVars.contains(o)) {
+							possibleSourceVars.remove(o);
+						}
+					}
+				}
+				if (varsThisInstTouches == null || varsThisInstTouches.get(0).size() == 0 || varsThisInstTouches.get(1).size() == 0) {
 					continue;
 				}
 				for (Object o : possibleSourceVars) {
@@ -607,7 +623,14 @@ public class SPROJ {
 				// check for sink too
 			} else {
 				ArrayList<TreeSet<Object>> varsThisInstTouches = SPROJ.getSourceAndDest(ins);
-				if (varsThisInstTouches == null || varsThisInstTouches.get(0) == null || varsThisInstTouches.get(1) == null) {
+				if (varsThisInstTouches != null && varsThisInstTouches.get(2).size() > 0) {
+					for (Object o: varsThisInstTouches.get(2)) {
+						if (possibleSourceVars.contains(o)) {
+							possibleSourceVars.remove(o);
+						}
+					}
+				}
+				if (varsThisInstTouches == null || varsThisInstTouches.get(0).size() == 0 || varsThisInstTouches.get(1).size() == 0) {
 					continue;
 				}
 				for (Object o : possibleSourceVars) {
