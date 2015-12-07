@@ -562,11 +562,18 @@ public class SPROJ {
 				if (varsThisInstTouches == null || varsThisInstTouches.get(0).size() == 0 || varsThisInstTouches.get(1).size() == 0) {
 					continue;
 				}
+				boolean taintedInstruction = false;
 				for (Object o : possibleSourceVars) {
 					if (varsThisInstTouches.get(0).contains(o)) {
 						possibleSourceVars.addAll(varsThisInstTouches.get(1));
+						taintedInstruction = true;
 						break;
 					}
+				}
+
+				// destination is overwritten
+				if (taintedInstruction == false) {
+					possibleSourceVars.removeAll(varsThisInstTouches.get(1));
 				}
 			}
 		}
@@ -644,11 +651,17 @@ public class SPROJ {
 				if (varsThisInstTouches == null || varsThisInstTouches.get(0).size() == 0 || varsThisInstTouches.get(1).size() == 0) {
 					continue;
 				}
+				boolean taintedInstruction = false;
 				for (Object o : possibleSourceVars) {
 					if (varsThisInstTouches.get(0).contains(o)) {
 						possibleSourceVars.addAll(varsThisInstTouches.get(1));
+						taintedInstruction = true;
 						break;
 					}
+				}
+				// destination is overwritten
+				if (taintedInstruction == false) {
+					possibleSourceVars.removeAll(varsThisInstTouches.get(1));
 				}
 			}
 		}
