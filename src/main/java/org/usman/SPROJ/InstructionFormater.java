@@ -101,7 +101,9 @@ public class InstructionFormater{
 		for (String param : params) {
 			possibleSourceSink += param + ",";
 		}
-		possibleSourceSink = possibleSourceSink.substring(0,possibleSourceSink.length()-1);
+		if (params.size() > 0) {
+			possibleSourceSink = possibleSourceSink.substring(0,possibleSourceSink.length()-1);
+		}
 		possibleSourceSink += ")>";
 		return possibleSourceSink;
 	}

@@ -60,7 +60,7 @@ public class SourceSinkIdentifier {
 				// List<BasicBlockInstruction> instructions = ControlFlowGraph.getFlatMethod(method);
 				// build CFG
 				ControlFlowGraph cfg = new ControlFlowGraph(method);
-				cfg.normalize();
+				// cfg.normalize();
 				
 				List<BasicBlock> basicblocks = cfg.getBasicBlocks();
 				for (BasicBlock basicblock : basicblocks) {
@@ -118,13 +118,20 @@ public class SourceSinkIdentifier {
 											if (!toPrint.contains("\tIn function: "+method.getName())) { 
 												toPrint.add("\tIn function: "+method.getName());
 											}
+											// toPrint.add("\t\tSource found: "+ possibleSourceSink);
 											toPrint.add("\t\tSource found: "+ line);
 											break;
 								        }
 								    }
 								}
-					    		
-								// System.out.println("In function: "+method.getName()+" found a call to: "+ r.getName()+" return type: "+r.getReturnType()+" Defined in class: "+r.getDefiningClass());
+					   //  		ReferenceInstruction i = (ReferenceInstruction)instruction.instruction;
+								// DexBackedMethodReference r = (DexBackedMethodReference)i.getReference();
+								// String lll = "In function: "+method.getName()+" found a call to: "+ r.getName()+" return type: "+r.getReturnType()+" Defined in class: "+r.getDefiningClass();
+								// if (lll.equals("In function: onReceive found a call to: getDeviceId return type: Ljava/lang/String; Defined in class: Landroid/telephony/TelephonyManager;")) {
+								// 	System.out.println(possibleSourceSink);
+								// 	// System.out.println(lll);
+								// }
+													
 								break;
 							default:
 								continue;

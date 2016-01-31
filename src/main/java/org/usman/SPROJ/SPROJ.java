@@ -81,6 +81,7 @@ public class SPROJ {
 	}
 	
 	static String CLASS = "L";
+	public static DexBackedDexFile FILE;
 	public static void main(String[] args) throws IOException {
 		if (args.length < 3) {
 			System.out.println("Usage:");
@@ -90,6 +91,7 @@ public class SPROJ {
 			return;
 		}
 		DexBackedDexFile dexFile = SPROJ.loadFile(args[0]);
+		FILE = dexFile;
 		SPROJ.CLASS += args[1];
 
 		if (args[2].equals("l")) {

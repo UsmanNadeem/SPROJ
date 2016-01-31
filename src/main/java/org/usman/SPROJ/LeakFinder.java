@@ -39,6 +39,7 @@ import org.jf.dexlib2.iface.instruction.OneRegisterInstruction;
 import org.jf.dexlib2.Format;
 import java.util.*;
 import java.lang.*;
+import org.jf.dexlib2.iface.instruction.formats.*;
 
 import org.jf.dexlib2.*;
 import org.jf.dexlib2.Opcode;
@@ -80,7 +81,7 @@ public class LeakFinder {
 						        if (line.startsWith(possibleSourceSink)) {
 						        	String location = "In Class: "+classDef.getSourceFile()+" In function: "+method.getName()+ "\nSource: "+line;
 
-									TreeSet<Object> possibleSourceVars = new TreeSet<Object>();
+									TreeSet<Object> tanitedVarSet = new TreeSet<Object>();
 									LinkedList<BasicBlock> queue = new LinkedList<BasicBlock>();
 									queue.add(basicblock);
 									for (BasicBlock bb : basicblocks) {
@@ -94,9 +95,9 @@ public class LeakFinder {
 										BasicBlock bb = queue.remove();
 										if (firstTime) {
 											firstTime = false;
-											LeakFinder.searchForPathtoSink(instruction, bb, basicblocks, location, possibleSourceVars);
+											LeakFinder.searchForPathtoSink(instruction, bb, basicblocks, location, tanitedVarSet);
 										} else {
-											LeakFinder.searchForPathtoSink(null, bb, basicblocks, location, possibleSourceVars);
+											LeakFinder.searchForPathtoSink(null, bb, basicblocks, location, tanitedVarSet);
 										}
 
 							        	if (bb.outgoingEdges != 0) {
@@ -115,14 +116,20 @@ public class LeakFinder {
 
 	
 
-	public static void searchForPathtoSink(BasicBlockInstruction srcInstruction, BasicBlock basicblock, List<BasicBlock> basicblocks, String location, TreeSet<Object> possibleSourceVars) throws IOException{
+	public static void searchForPathtoSink(BasicBlockInstruction srcInstruction, BasicBlock basicblock, 
+		List<BasicBlock> basicblocks, String location, TreeSet<Object> tanitedVarSet) throws IOException{
 
 		for (int i = (srcInstruction==null) ? 0 : basicblock.instructions.indexOf(srcInstruction); i<basicblock.instructions.size(); ++i) {
 			BasicBlockInstruction ins = basicblock.instructions.get(i);
 
 			if (ins.instruction.getOpcode().referenceType == 3) {  // function call
+				// look for method
+				ReferenceInstruction refIns = (ReferenceInstruction)ins.instruction;
+				DexBackedMethodReference reference = (DexBackedMethodReference)refIns.getReference();
+				String definingClass = reference.getDefiningClass();
+				Format format = ins.instruction.getOpcode().format;
 
-				TreeSet<Object> varsThisInstTouches = Analyzer.getVarThisFunctionTouches(ins, basicblock);
+				List<Object> varsThisInstTouches = Analyzer.getVarThisFunctionTouches(ins, basicblock);
 
 				// check for return call
 				if (i+1<basicblock.instructions.size()) {
@@ -131,34 +138,111 @@ public class LeakFinder {
 					}
 				}
 				if (srcInstruction == ins) {  // this instruction is the source
-					possibleSourceVars.addAll(varsThisInstTouches);
+					tanitedVarSet.addAll(varsThisInstTouches);
 					continue;
 				}
 
-				// check if this function call touches any of the tainted variables
-				if (varsThisInstTouches.size()>0) {
-					for (Object o : possibleSourceVars) {
-						if (varsThisInstTouches.contains(o)) {
-							possibleSourceVars.addAll(varsThisInstTouches);  // add to list of already tainted variables.
+				if (varsThisInstTouches.size()==0) { continue; }
+				
+				boolean carriesTaint = false;
+				if (format == Format.Format35c) {
+					FiveRegisterInstruction r5instr = (FiveRegisterInstruction)refIns;
+					carriesTaint = ( tanitedVarSet.contains((Object)r5instr.getRegisterC()) ) ? true : carriesTaint;
+					for (int l = 0;l<r5instr.getRegisterCount() ;++l ) {
+						switch (l) {
+							case 0: carriesTaint = ( tanitedVarSet.contains((Object)r5instr.getRegisterC()) ) ? true : carriesTaint;
+							case 1: carriesTaint = ( tanitedVarSet.contains((Object)r5instr.getRegisterD()) ) ? true : carriesTaint;
+							case 2: carriesTaint = ( tanitedVarSet.contains((Object)r5instr.getRegisterE()) ) ? true : carriesTaint;
+							case 3: carriesTaint = ( tanitedVarSet.contains((Object)r5instr.getRegisterF()) ) ? true : carriesTaint;
+							case 4: carriesTaint = ( tanitedVarSet.contains((Object)r5instr.getRegisterG()) ) ? true : carriesTaint;
+						}
+					}
+				} else if (format == Format.Format3rc) {
+					Instruction3rc instr3rc = (Instruction3rc) ins.instruction;
+					for (int l = 0; l < instr3rc.getRegisterCount(); ++l) {
+						carriesTaint = ( tanitedVarSet.contains( (Object)(instr3rc.getStartRegister()+i)) ) ? true : carriesTaint;
+					}
+				}
 
-							// check if it is a sink
-							File sourceFile = new File("Android_4.2_Sinks.txt");
-						    BufferedReader br = new BufferedReader(new FileReader(sourceFile));
-						    String line;
-						    while ((line = br.readLine()) != null) {
-						    	// sink found
-						    	String sink = InstructionFormater.getFormatedFunctionCall(ins);
-						        if (line.startsWith(sink)) {
-									System.out.println("****************LEAK FOUND:****************");
-									System.out.println(location);
-									System.out.println("sink = " + line);
-									break;
-						        }
-						    }
+
+				// check if this function call touches any of the tainted variables
+				if (!carriesTaint) { continue; }
+
+				// // check if this function call touches any of the tainted variables
+				// if (reference.getName().equals("dummyFunctionForDEMO")) {
+				// // 	System.out.print(definingClass + " ");
+				// // 	System.out.println(reference.getName() + "   "+ins.instruction.getOpcode().format);
+				// // 	// System.out.println(classDef.getType());
+				// 	// System.out.println(r5instr.getRegisterCount() );
+				// // 	System.out.println(((Instruction3rc)ins.instruction).getStartRegister() );
+				// 	System.out.print(((FiveRegisterInstruction)refIns).getRegisterC() );
+				// 	System.out.println(" " + ((FiveRegisterInstruction)refIns).getRegisterD() );
+				// // 	// System.out.println(r5instr.getRegisterE() );
+				// // 	// System.out.println(r5instr.getRegisterF() );
+				// 	// System.out.println(r5instr.getRegisterG() );
+				// 	System.out.print("Tainted var :");
+				// 	for (Object oo : tanitedVarSet) {
+				// 		System.out.print(" "+ oo);
+				// 	}
+				// 	System.out.println("\n========================================================================");
+				// }
+
+
+				// check if it is a sink
+				boolean isSink = false;
+				File sourceFile = new File("Android_4.2_Sinks.txt");
+			    BufferedReader br = new BufferedReader(new FileReader(sourceFile));
+			    String line;
+			    while ((line = br.readLine()) != null) {
+			    	// sink found
+			    	String sink = InstructionFormater.getFormatedFunctionCall(ins);
+			        if (line.startsWith(sink)) {
+						System.out.println("\n\n\n****************LEAK FOUND:****************");
+						System.out.println(location);
+						
+						System.out.println("\n"+location.substring(location.indexOf("In Class:"), location.indexOf("Source:")-1));
+						System.out.println("Sink = " + line);
+						// System.out.println("In Class: "+classDef.getSourceFile()+" In function: "+method.getName());
+						isSink = true;
+						break;
+			        }
+			    }
+			    // todo: patch up
+			    if (isSink) { continue; }  // no need to analyze this function
+
+
+			    // todo if cant find funcdefinition i.e. library function then no need to analyze this function tanitedVarSet.addAll(varsThisInstTouches);
+				
+				boolean functionDefFound = false;
+				List<? extends ClassDef> classDefs = Ordering.natural().sortedCopy(SPROJ.FILE.getClasses());
+				for(final ClassDef classDef: classDefs) {
+					if (functionDefFound) break;
+					if (!classDef.getType().startsWith(definingClass)) continue;
+					if (!classDef.getType().startsWith(SPROJ.CLASS)) continue;
+					if (reference.getName().equals("dummyFunctionForDEMO")) {
+					// 	System.out.println(definingClass);
+					// 	System.out.println(classDef.getType());
+					// 	System.out.println(reference.getName());
+					// 	System.out.println("========================================================================");
+					// }
+					for(Method method: classDef.getMethods()) {
+						if (method.getName().equals(reference.getName())) {
+							functionDefFound = true;
+							ReturnStructure newStr = new ReturnStructure(tanitedVarSet, ins, method);  // mapping
+							new FunctionLeakFinder(method, newStr, location+"\nIn Class: "+classDef.getSourceFile()+" In function: "+
+								method.getName());
+							if (newStr.isRetValTainted == true) {
+								tanitedVarSet.add(varsThisInstTouches.get(varsThisInstTouches.size()-1));
+							}
+							tanitedVarSet.addAll(newStr.reverseMap());  // merge sets after doing reverse mapping
+							// System.out.println("\n\n\n*********** "+classDef.getType() + "----> "+ method.getName() +" ---> "+location );
 							break;
 						}
 					}
+					}
 				}
+				if (!functionDefFound) tanitedVarSet.addAll(varsThisInstTouches);
+
 			} else {  // this instruction is not a function call
 				ArrayList<TreeSet<Object>> varsThisInstTouches = Analyzer.getSourceAndDest(ins);
 				if (varsThisInstTouches == null) {
@@ -166,7 +250,7 @@ public class LeakFinder {
 				}
 				// registers overwritten with a constant are no longer tainted
 				for (Object o: varsThisInstTouches.get(2)) {
-						possibleSourceVars.remove(o);
+						tanitedVarSet.remove(o);
 				}
 
 				if (varsThisInstTouches.get(0).size() == 0 || varsThisInstTouches.get(1).size() == 0) {
@@ -174,9 +258,9 @@ public class LeakFinder {
 				}
 
 				boolean taintedInstruction = false;
-				for (Object o : possibleSourceVars) {
+				for (Object o : tanitedVarSet) {
 					if (varsThisInstTouches.get(0).contains(o)) {
-						possibleSourceVars.addAll(varsThisInstTouches.get(1));
+						tanitedVarSet.addAll(varsThisInstTouches.get(1));
 						taintedInstruction = true;
 						break;
 					}
@@ -184,7 +268,7 @@ public class LeakFinder {
 
 				// destination is overwritten
 				if (taintedInstruction == false) {
-					possibleSourceVars.removeAll(varsThisInstTouches.get(1));
+					tanitedVarSet.removeAll(varsThisInstTouches.get(1));
 				}
 			}
 		}

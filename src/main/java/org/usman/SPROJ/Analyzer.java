@@ -39,6 +39,8 @@ import org.jf.dexlib2.iface.instruction.OneRegisterInstruction;
 import org.jf.dexlib2.Format;
 import java.util.*;
 import java.lang.*;
+import org.jf.dexlib2.iface.instruction.formats.*;
+
 
 import org.jf.dexlib2.*;
 import org.jf.dexlib2.Opcode;
@@ -200,10 +202,10 @@ public class Analyzer {
 		return retval;
 	} 
 
-	public static TreeSet<Object> getVarThisFunctionTouches(BasicBlockInstruction instruction, BasicBlock basicblock) {
+	public static List<Object> getVarThisFunctionTouches(BasicBlockInstruction instruction, BasicBlock basicblock) {
 		Format format = instruction.instruction.getOpcode().format;
 		Opcode opcode = instruction.instruction.getOpcode();
-		TreeSet<Object> retval = new TreeSet<Object>();
+		List<Object> retval = new ArrayList<Object>();
 
 		if (format == Format.Format35c) {  // function call
 			FiveRegisterInstruction instr = (FiveRegisterInstruction)instruction.instruction;
@@ -223,13 +225,21 @@ public class Analyzer {
 				OneRegisterInstruction retInstr = (OneRegisterInstruction)basicblock.instructions.get(i).instruction;
 				retval.add(retInstr.getRegisterA());
 			}
+		} else if (format == Format.Format3rc) {
+			for (int i = 0;i<((Instruction3rc)instruction.instruction).getRegisterCount() ;++i ) {
+				retval.add( ((Instruction3rc)instruction.instruction).getStartRegister()+i);
+			}
+			// System.out.println("************ "+((Instruction3rc)instruction.instruction).getRegisterCount() );
+			// System.out.println("************ "+((Instruction3rc)instruction.instruction).getStartRegister() );
+			int i = basicblock.instructions.indexOf(instruction) + 1;
+			// check for return call
+			if (i < basicblock.instructions.size() && basicblock.instructions.get(i).instruction.getOpcode().format == Format.Format11x) {
+				OneRegisterInstruction retInstr = (OneRegisterInstruction)basicblock.instructions.get(i).instruction;
+				retval.add(retInstr.getRegisterA());
+			}
 		}
 		
 		return retval;
-		// if (opcode.name.contains("/2addr")) {  // both source, 1st is dest
-		// retval.get(0).add(instruction.getRegisterA());
-			// case Format11x:  // return	 getRegisterA
-			// case Format35c:	 // getRegisterCount CDEFG getReference
 			// case Format3rc: todo	
 	}
 }
