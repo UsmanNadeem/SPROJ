@@ -166,7 +166,7 @@ public class LeakFinder {
 
 				// check if this function call touches any of the tainted variables
 				if (!carriesTaint) { continue; }
-				
+
 				// if (reference.getName().equals("write")) {
 				// 	System.out.println(definingClass + " ");
 				// // // 	System.out.println(reference.getName() + "   "+ins.instruction.getOpcode().format);
@@ -209,7 +209,7 @@ public class LeakFinder {
 			    if (isSink) { continue; }  // no need to analyze this function
 
 
-			    // todo if cant find funcdefinition i.e. library function then no need to analyze this function tanitedVarSet.addAll(varsThisInstTouches);
+			    // if cant find funcdefinition i.e. library function then no need to analyze this function tanitedVarSet.addAll(varsThisInstTouches);
 				
 				boolean functionDefFound = false;
 				List<? extends ClassDef> classDefs = Ordering.natural().sortedCopy(SPROJ.FILE.getClasses());

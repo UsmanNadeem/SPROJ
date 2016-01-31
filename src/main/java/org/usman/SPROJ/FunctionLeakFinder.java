@@ -64,7 +64,7 @@ public class FunctionLeakFinder {
 			try {
 				taintAnalysis(bb, basicblocks, structure, location);
 			} catch (Exception e) {
-				// todo: catch execption
+				System.err.println(e);
 			}
 
 
@@ -157,7 +157,7 @@ public class FunctionLeakFinder {
 			    if (isSink) { continue; }  // no need to analyze this function
 
 			    
-			    // todo if cant find funcdefinition i.e. library function then no need to analyze this function tanitedVarSet.addAll(varsThisInstTouches);
+			    // if cant find funcdefinition i.e. library function then no need to analyze this function tanitedVarSet.addAll(varsThisInstTouches);
 				// look for method
 
 				boolean functionDefFound = false;
@@ -228,7 +228,7 @@ class ReturnStructure {
 		ins = _ins;
 		tanitedVarSet = new TreeSet<Object> ();
 		int numRegisters = method.getImplementation().getRegisterCount();
-		// todo two type of function calls
+		// two type of function calls
 		if (ins.instruction.getOpcode().format == Format.Format35c) {
 			FiveRegisterInstruction r5instr = (FiveRegisterInstruction)ins.instruction;
 			for (int i = 0;i<r5instr.getRegisterCount() ;++i ) {

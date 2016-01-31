@@ -240,6 +240,5 @@ public class Analyzer {
 		}
 		
 		return retval;
-			// case Format3rc: todo	
 	}
 }
