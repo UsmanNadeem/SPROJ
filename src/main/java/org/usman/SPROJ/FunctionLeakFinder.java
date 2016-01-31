@@ -120,16 +120,16 @@ public class FunctionLeakFinder {
 				DexBackedMethodReference reference = (DexBackedMethodReference)refIns.getReference();
 				String definingClass = reference.getDefiningClass();
 
-				// if (reference.getName().equals("putString")) {
+				// if (reference.getName().equals("write")) {
 				// 	System.out.print(((FiveRegisterInstruction)refIns).getRegisterC() );
 				// 	System.out.print(" " + ((FiveRegisterInstruction)refIns).getRegisterD() );
 				// 	System.out.println(" " + ((FiveRegisterInstruction)refIns).getRegisterE() );
+				// 	System.out.print("Tainted var :");
 				// 	for (Object oo : currentStr.tanitedVarSet) {
 				// 		System.out.print(oo+" ");
 				// 	}
-				// 	System.out.println("");
+				// 	System.out.println("\n$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
 				// }
-				// System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
 
 				// check if this function call touches any of the tainted variables
 				if (!carriesTaint) { continue; }

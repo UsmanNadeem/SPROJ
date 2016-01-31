@@ -164,28 +164,26 @@ public class LeakFinder {
 					}
 				}
 
-
 				// check if this function call touches any of the tainted variables
 				if (!carriesTaint) { continue; }
-
-				// // check if this function call touches any of the tainted variables
-				// if (reference.getName().equals("dummyFunctionForDEMO")) {
-				// // 	System.out.print(definingClass + " ");
-				// // 	System.out.println(reference.getName() + "   "+ins.instruction.getOpcode().format);
-				// // 	// System.out.println(classDef.getType());
-				// 	// System.out.println(r5instr.getRegisterCount() );
-				// // 	System.out.println(((Instruction3rc)ins.instruction).getStartRegister() );
+				
+				// if (reference.getName().equals("write")) {
+				// 	System.out.println(definingClass + " ");
+				// // // 	System.out.println(reference.getName() + "   "+ins.instruction.getOpcode().format);
+				// // // 	// System.out.println(classDef.getType());
+				// // 	// System.out.println(r5instr.getRegisterCount() );
+				// 	// System.out.println(((Instruction3rc)ins.instruction).getStartRegister() );
 				// 	System.out.print(((FiveRegisterInstruction)refIns).getRegisterC() );
-				// 	System.out.println(" " + ((FiveRegisterInstruction)refIns).getRegisterD() );
-				// // 	// System.out.println(r5instr.getRegisterE() );
-				// // 	// System.out.println(r5instr.getRegisterF() );
-				// 	// System.out.println(r5instr.getRegisterG() );
+				// 	System.out.print(" " + ((FiveRegisterInstruction)refIns).getRegisterD() );
+				// 	System.out.println(" " +((FiveRegisterInstruction)refIns).getRegisterE() );
 				// 	System.out.print("Tainted var :");
 				// 	for (Object oo : tanitedVarSet) {
-				// 		System.out.print(" "+ oo);
+				// 		System.out.print(oo+" ");
 				// 	}
 				// 	System.out.println("\n========================================================================");
 				// }
+
+
 
 
 				// check if it is a sink
@@ -219,7 +217,7 @@ public class LeakFinder {
 					if (functionDefFound) break;
 					if (!classDef.getType().startsWith(definingClass)) continue;
 					if (!classDef.getType().startsWith(SPROJ.CLASS)) continue;
-					if (reference.getName().equals("dummyFunctionForDEMO")) {
+					// if (reference.getName().equals("dummyFunctionForDEMO")) {
 					// 	System.out.println(definingClass);
 					// 	System.out.println(classDef.getType());
 					// 	System.out.println(reference.getName());
@@ -238,7 +236,6 @@ public class LeakFinder {
 							// System.out.println("\n\n\n*********** "+classDef.getType() + "----> "+ method.getName() +" ---> "+location );
 							break;
 						}
-					}
 					}
 				}
 				if (!functionDefFound) tanitedVarSet.addAll(varsThisInstTouches);
