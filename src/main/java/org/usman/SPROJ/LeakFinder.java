@@ -160,7 +160,7 @@ public class LeakFinder {
 				} else if (format == Format.Format3rc) {
 					Instruction3rc instr3rc = (Instruction3rc) ins.instruction;
 					for (int l = 0; l < instr3rc.getRegisterCount(); ++l) {
-						carriesTaint = ( tanitedVarSet.contains( (Object)(instr3rc.getStartRegister()+i)) ) ? true : carriesTaint;
+						carriesTaint = ( tanitedVarSet.contains( (Object)(instr3rc.getStartRegister()+l)) ) ? true : carriesTaint;
 					}
 				}
 

@@ -73,15 +73,15 @@ public class FunctionLeakFinder {
 			}
 		}
 	}
-	public void taintAnalysis(BasicBlock basicblock, List<BasicBlock> basicblocks, ReturnStructure oldStr, String location) throws Exception{
+	public void taintAnalysis(BasicBlock basicblock, List<BasicBlock> basicblocks, ReturnStructure currentStr, String location) throws Exception{
 
 		for (int i = 0; i<basicblock.instructions.size(); ++i) {
 			BasicBlockInstruction ins = basicblock.instructions.get(i);
 			if (ins.instruction.getOpcode().format == Format.Format11x) {  // return something
 
 				OneRegisterInstruction retInstr = (OneRegisterInstruction)ins.instruction;
-				if (oldStr.tanitedVarSet.contains((Object) retInstr.getRegisterA())) {
-					oldStr.setRetValTainted();
+				if (currentStr.tanitedVarSet.contains((Object) retInstr.getRegisterA())) {
+					currentStr.setRetValTainted();
 				}
 			} else if (ins.instruction.getOpcode().referenceType == 3) {  // function call
 
@@ -98,20 +98,20 @@ public class FunctionLeakFinder {
 				boolean carriesTaint = false;
 				if (format == Format.Format35c) {
 					FiveRegisterInstruction r5instr = (FiveRegisterInstruction)ins.instruction;
-					carriesTaint = ( oldStr.tanitedVarSet.contains((Object)r5instr.getRegisterC()) ) ? true : carriesTaint;
+					carriesTaint = ( currentStr.tanitedVarSet.contains((Object)r5instr.getRegisterC()) ) ? true : carriesTaint;
 					for (int l = 0; l < r5instr.getRegisterCount(); ++l) {
 						switch (l) {
-							case 0: carriesTaint = ( oldStr.tanitedVarSet.contains((Object)r5instr.getRegisterC()) ) ? true : carriesTaint;
-							case 1: carriesTaint = ( oldStr.tanitedVarSet.contains((Object)r5instr.getRegisterD()) ) ? true : carriesTaint;
-							case 2: carriesTaint = ( oldStr.tanitedVarSet.contains((Object)r5instr.getRegisterE()) ) ? true : carriesTaint;
-							case 3: carriesTaint = ( oldStr.tanitedVarSet.contains((Object)r5instr.getRegisterF()) ) ? true : carriesTaint;
-							case 4: carriesTaint = ( oldStr.tanitedVarSet.contains((Object)r5instr.getRegisterG()) ) ? true : carriesTaint;
+							case 0: carriesTaint = ( currentStr.tanitedVarSet.contains((Object)r5instr.getRegisterC()) ) ? true : carriesTaint;
+							case 1: carriesTaint = ( currentStr.tanitedVarSet.contains((Object)r5instr.getRegisterD()) ) ? true : carriesTaint;
+							case 2: carriesTaint = ( currentStr.tanitedVarSet.contains((Object)r5instr.getRegisterE()) ) ? true : carriesTaint;
+							case 3: carriesTaint = ( currentStr.tanitedVarSet.contains((Object)r5instr.getRegisterF()) ) ? true : carriesTaint;
+							case 4: carriesTaint = ( currentStr.tanitedVarSet.contains((Object)r5instr.getRegisterG()) ) ? true : carriesTaint;
 						}
 					}
 				} else if (format == Format.Format3rc) {
 					Instruction3rc instr3rc = (Instruction3rc) ins.instruction;
 					for (int l = 0; l < instr3rc.getRegisterCount(); ++l) {
-						carriesTaint = ( oldStr.tanitedVarSet.contains( (Object)(instr3rc.getStartRegister()+i)) ) ? true : carriesTaint;
+						carriesTaint = ( currentStr.tanitedVarSet.contains( (Object)(instr3rc.getStartRegister()+l)) ) ? true : carriesTaint;
 					}
 				}
 
@@ -121,25 +121,15 @@ public class FunctionLeakFinder {
 				String definingClass = reference.getDefiningClass();
 
 				// if (reference.getName().equals("putString")) {
-				// System.out.println(oldStr.method.getImplementation().getRegisterCount());
-				// // // 	System.out.print(definingClass + " ");
-				// // // 	System.out.println(reference.getName() + "   "+ins.instruction.getOpcode().format);
-				// // // 	// System.out.println(classDef.getType());
-				// // 	// System.out.println(r5instr.getRegisterCount() );
-				// // // 	System.out.println(((Instruction3rc)ins.instruction).getStartRegister() );
 				// 	System.out.print(((FiveRegisterInstruction)refIns).getRegisterC() );
 				// 	System.out.print(" " + ((FiveRegisterInstruction)refIns).getRegisterD() );
 				// 	System.out.println(" " + ((FiveRegisterInstruction)refIns).getRegisterE() );
-				// // // 	// System.out.println(r5instr.getRegisterE() );
-				// // // 	// System.out.println(r5instr.getRegisterF() );
-				// // 	// System.out.println(r5instr.getRegisterG() );
-				// // 	System.out.print("Tainted var :");
-				// // 	for (Object oo : tanitedVarSet) {
-				// // 		System.out.print(" "+ oo);
-				// // 	}
-				// // 	System.out.println("\n========================================================================");
+				// 	for (Object oo : currentStr.tanitedVarSet) {
+				// 		System.out.print(oo+" ");
+				// 	}
+				// 	System.out.println("");
 				// }
-				System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
+				// System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
 
 				// check if this function call touches any of the tainted variables
 				if (!carriesTaint) { continue; }
@@ -180,18 +170,18 @@ public class FunctionLeakFinder {
 					for(Method method: classDef.getMethods()) {
 						if (method.getName().equals(reference.getName())) {
 							functionDefFound = true;
-							ReturnStructure newStr = new ReturnStructure(oldStr.tanitedVarSet, ins, method);  // mapping
+							ReturnStructure newStr = new ReturnStructure(currentStr.tanitedVarSet, ins, method);  // mapping
 							new FunctionLeakFinder(method, newStr, location);
 							if (newStr.isRetValTainted == true) {
-								oldStr.tanitedVarSet.add(varsThisInstTouches.get(varsThisInstTouches.size()-1));
+								currentStr.tanitedVarSet.add(varsThisInstTouches.get(varsThisInstTouches.size()-1));
 							}
 
-							oldStr.tanitedVarSet.addAll(newStr.reverseMap());  // merge sets after doing reverse mapping
+							currentStr.tanitedVarSet.addAll(newStr.reverseMap());  // merge sets after doing reverse mapping
 							break;
 						}
 					}
 				}
-				if (!functionDefFound) oldStr.tanitedVarSet.addAll(varsThisInstTouches);
+				if (!functionDefFound) currentStr.tanitedVarSet.addAll(varsThisInstTouches);
 
 			} else {  // this instruction is not a function call
 				ArrayList<TreeSet<Object>> varsThisInstTouches = Analyzer.getSourceAndDest(ins);
@@ -200,7 +190,7 @@ public class FunctionLeakFinder {
 				}
 				// registers overwritten with a constant are no longer tainted
 				for (Object o: varsThisInstTouches.get(2)) {
-						oldStr.tanitedVarSet.remove(o);
+						currentStr.tanitedVarSet.remove(o);
 				}
 
 				if (varsThisInstTouches.get(0).size() == 0 || varsThisInstTouches.get(1).size() == 0) {
@@ -208,9 +198,9 @@ public class FunctionLeakFinder {
 				}
 
 				boolean taintedInstruction = false;
-				for (Object o : oldStr.tanitedVarSet) {
+				for (Object o : currentStr.tanitedVarSet) {
 					if (varsThisInstTouches.get(0).contains(o)) {
-						oldStr.tanitedVarSet.addAll(varsThisInstTouches.get(1));
+						currentStr.tanitedVarSet.addAll(varsThisInstTouches.get(1));
 						taintedInstruction = true;
 						break;
 					}
@@ -218,7 +208,7 @@ public class FunctionLeakFinder {
 
 				// destination is overwritten
 				if (taintedInstruction == false) {
-					oldStr.tanitedVarSet.removeAll(varsThisInstTouches.get(1));
+					currentStr.tanitedVarSet.removeAll(varsThisInstTouches.get(1));
 				}
 			}
 		}
@@ -229,60 +219,72 @@ class ReturnStructure {
 	boolean isRetValTainted;
 	boolean carriesTaint;
 	TreeSet<Object> tanitedVarSet;
-	FiveRegisterInstruction r5instr;
 	Method method;
-	ReturnStructure(TreeSet<Object> _tanitedVarSet, BasicBlockInstruction ins, Method _method) {
+	BasicBlockInstruction ins;
+	ReturnStructure(TreeSet<Object> _tanitedVarSet, BasicBlockInstruction _ins, Method _method) {
 		isRetValTainted = false;
 		carriesTaint = false;
 		method = _method;
+		ins = _ins;
 		tanitedVarSet = new TreeSet<Object> ();
 		int numRegisters = method.getImplementation().getRegisterCount();
 		// todo two type of function calls
-		r5instr = (FiveRegisterInstruction)ins.instruction;
-		for (int i = 0;i<r5instr.getRegisterCount() ;++i ) {
-			switch (i) {
-				case 0 : {
-					Object register = r5instr.getRegisterC();
-					if ( _tanitedVarSet.contains( register ) ) {
-						tanitedVarSet.add(1);
-						carriesTaint = true;
+		if (ins.instruction.getOpcode().format == Format.Format35c) {
+			FiveRegisterInstruction r5instr = (FiveRegisterInstruction)ins.instruction;
+			for (int i = 0;i<r5instr.getRegisterCount() ;++i ) {
+				switch (i) {
+					case 0 : {
+						Object register = r5instr.getRegisterC();
+						if ( _tanitedVarSet.contains( register ) ) {
+							tanitedVarSet.add(numRegisters - r5instr.getRegisterCount() + i);
+							carriesTaint = true;
+						}
+						break;
 					}
-					break;
-				}
-				case 1 : {
-					Object register = r5instr.getRegisterD();
-					if ( _tanitedVarSet.contains( register ) ) {
-						tanitedVarSet.add(2);
-						carriesTaint = true;
+					case 1 : {
+						Object register = r5instr.getRegisterD();
+						if ( _tanitedVarSet.contains( register ) ) {
+							tanitedVarSet.add(numRegisters - r5instr.getRegisterCount() + i);
+							carriesTaint = true;
+						}
+						break;
 					}
-					break;
-				}
-				case 2 : {
-					Object register = r5instr.getRegisterE();
-					if ( _tanitedVarSet.contains( register ) ) {
-						tanitedVarSet.add(3);
-						carriesTaint = true;
+					case 2 : {
+						Object register = r5instr.getRegisterE();
+						if ( _tanitedVarSet.contains( register ) ) {
+							tanitedVarSet.add(numRegisters - r5instr.getRegisterCount() + i);
+							carriesTaint = true;
+						}
+						break;
 					}
-					break;
-				}
-				case 3 : {
-					Object register = r5instr.getRegisterF();
-					if ( _tanitedVarSet.contains( register ) ) {
-						tanitedVarSet.add(4);
-						carriesTaint = true;
+					case 3 : {
+						Object register = r5instr.getRegisterF();
+						if ( _tanitedVarSet.contains( register ) ) {
+							tanitedVarSet.add(numRegisters - r5instr.getRegisterCount() + i);
+							carriesTaint = true;
+						}
+						break;
 					}
-					break;
-				}
-				case 4 : {
-					Object register = r5instr.getRegisterG();
-					if ( _tanitedVarSet.contains( register ) ) {
-						tanitedVarSet.add(5);
-						carriesTaint = true;
+					case 4 : {
+						Object register = r5instr.getRegisterG();
+						if ( _tanitedVarSet.contains( register ) ) {
+							tanitedVarSet.add(numRegisters - r5instr.getRegisterCount() + i);
+							carriesTaint = true;
+						}
+						break;
 					}
-					break;
+					default:
+						break;
 				}
-				default:
-					break;
+			}
+			
+		} else if (ins.instruction.getOpcode().format == Format.Format3rc) {
+			Instruction3rc instr3rc = (Instruction3rc) ins.instruction;
+			for (int i = 0; i < instr3rc.getRegisterCount(); ++i) {
+				if (_tanitedVarSet.contains( (Object)(instr3rc.getStartRegister()+i))) {
+					tanitedVarSet.add(numRegisters - instr3rc.getRegisterCount() + i);
+					carriesTaint = true;
+				}
 			}
 		}
 	}
@@ -291,37 +293,48 @@ class ReturnStructure {
 	}
 	public TreeSet<Object> reverseMap() {
 		TreeSet<Object> retSet = new TreeSet<Object> ();
-		for (int i = 0;i<r5instr.getRegisterCount() ;++i ) {
-			switch (i) {
-				case 0 : {
-					if ( tanitedVarSet.contains( (Object)1 ) ) {
-						retSet.add(r5instr.getRegisterC());
+		int numRegisters = method.getImplementation().getRegisterCount();
+		if (ins.instruction.getOpcode().format == Format.Format35c) {
+			FiveRegisterInstruction r5instr = (FiveRegisterInstruction)ins.instruction;
+			for (int i = 0;i<r5instr.getRegisterCount() ;++i ) {
+				switch (i) {
+					case 0 : {
+						if ( tanitedVarSet.contains( (Object)(numRegisters - r5instr.getRegisterCount() + i)) ) {
+							retSet.add(r5instr.getRegisterC());
+						}
+						break;
 					}
-					break;
+					case 1 : {
+						if ( tanitedVarSet.contains( (Object)(numRegisters - r5instr.getRegisterCount() + i) ) ) {
+							retSet.add(r5instr.getRegisterD());
+						}
+						break;
+					}
+					case 2 : {
+						if ( tanitedVarSet.contains( (Object)(numRegisters - r5instr.getRegisterCount() + i) ) ) {
+							retSet.add(r5instr.getRegisterE());
+						}
+						break;
+					}
+					case 3 : {
+						if ( tanitedVarSet.contains( (Object)(numRegisters - r5instr.getRegisterCount() + i) ) ) {
+							retSet.add(r5instr.getRegisterF());
+						}
+						break;
+					}
+					case 4 : {
+						if ( tanitedVarSet.contains( (Object)(numRegisters - r5instr.getRegisterCount() + i) ) ) {
+							retSet.add(r5instr.getRegisterG());
+						}
+						break;
+					}
 				}
-				case 1 : {
-					if ( tanitedVarSet.contains( (Object)2 ) ) {
-						retSet.add(r5instr.getRegisterD());
-					}
-					break;
-				}
-				case 2 : {
-					if ( tanitedVarSet.contains( (Object)3 ) ) {
-						retSet.add(r5instr.getRegisterE());
-					}
-					break;
-				}
-				case 3 : {
-					if ( tanitedVarSet.contains( (Object)4 ) ) {
-						retSet.add(r5instr.getRegisterF());
-					}
-					break;
-				}
-				case 4 : {
-					if ( tanitedVarSet.contains( (Object)5 ) ) {
-						retSet.add(r5instr.getRegisterG());
-					}
-					break;
+			}
+		}else if (ins.instruction.getOpcode().format == Format.Format3rc) {
+			Instruction3rc instr3rc = (Instruction3rc) ins.instruction;
+			for (int i = 0; i < instr3rc.getRegisterCount(); ++i) {
+				if (tanitedVarSet.contains( (Object)(numRegisters - instr3rc.getRegisterCount() + i))) {
+					retSet.add(instr3rc.getStartRegister()+i);
 				}
 			}
 		}
