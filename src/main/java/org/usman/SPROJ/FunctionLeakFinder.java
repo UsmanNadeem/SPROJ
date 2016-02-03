@@ -53,11 +53,13 @@ public class FunctionLeakFinder {
 		List<BasicBlock> basicblocks = cfg.getBasicBlocks();
 		for (BasicBlock bb : basicblocks) {
 			bb.clearVisited();
+			bb.clearTaints();
 		}
 		
 		LinkedList<BasicBlock> queue = new LinkedList<BasicBlock>();
 		queue.add(basicblocks.get(0));
 		basicblocks.get(0).setVisited();
+		basicblocks.get(0).setTanitedVarSet(structure.tanitedVarSet);
 		
 		while (queue.size() != 0) {
 			BasicBlock bb = queue.remove();
@@ -75,12 +77,21 @@ public class FunctionLeakFinder {
 	}
 	public void taintAnalysis(BasicBlock basicblock, List<BasicBlock> basicblocks, ReturnStructure currentStr, String location) throws Exception{
 
+		for (BasicBlock bb : basicblocks) {
+			if (bb.destinations == null) continue;
+			for (Integer destination:bb.destinations) {
+				if (basicblock.startInstructionAddress==destination.intValue()) {
+					basicblock.tanitedVarSet.addAll(bb.tanitedVarSet);
+				}
+			}
+		}
+
 		for (int i = 0; i<basicblock.instructions.size(); ++i) {
 			BasicBlockInstruction ins = basicblock.instructions.get(i);
 			if (ins.instruction.getOpcode().format == Format.Format11x) {  // return something
 
 				OneRegisterInstruction retInstr = (OneRegisterInstruction)ins.instruction;
-				if (currentStr.tanitedVarSet.contains((Object) retInstr.getRegisterA())) {
+				if (basicblock.tanitedVarSet.contains((Object) retInstr.getRegisterA())) {
 					currentStr.setRetValTainted();
 				}
 			} else if (ins.instruction.getOpcode().referenceType == 3) {  // function call
@@ -98,20 +109,20 @@ public class FunctionLeakFinder {
 				boolean carriesTaint = false;
 				if (format == Format.Format35c) {
 					FiveRegisterInstruction r5instr = (FiveRegisterInstruction)ins.instruction;
-					carriesTaint = ( currentStr.tanitedVarSet.contains((Object)r5instr.getRegisterC()) ) ? true : carriesTaint;
+					carriesTaint = ( basicblock.tanitedVarSet.contains((Object)r5instr.getRegisterC()) ) ? true : carriesTaint;
 					for (int l = 0; l < r5instr.getRegisterCount(); ++l) {
 						switch (l) {
-							case 0: carriesTaint = ( currentStr.tanitedVarSet.contains((Object)r5instr.getRegisterC()) ) ? true : carriesTaint;
-							case 1: carriesTaint = ( currentStr.tanitedVarSet.contains((Object)r5instr.getRegisterD()) ) ? true : carriesTaint;
-							case 2: carriesTaint = ( currentStr.tanitedVarSet.contains((Object)r5instr.getRegisterE()) ) ? true : carriesTaint;
-							case 3: carriesTaint = ( currentStr.tanitedVarSet.contains((Object)r5instr.getRegisterF()) ) ? true : carriesTaint;
-							case 4: carriesTaint = ( currentStr.tanitedVarSet.contains((Object)r5instr.getRegisterG()) ) ? true : carriesTaint;
+							case 0: carriesTaint = ( basicblock.tanitedVarSet.contains((Object)r5instr.getRegisterC()) ) ? true : carriesTaint;
+							case 1: carriesTaint = ( basicblock.tanitedVarSet.contains((Object)r5instr.getRegisterD()) ) ? true : carriesTaint;
+							case 2: carriesTaint = ( basicblock.tanitedVarSet.contains((Object)r5instr.getRegisterE()) ) ? true : carriesTaint;
+							case 3: carriesTaint = ( basicblock.tanitedVarSet.contains((Object)r5instr.getRegisterF()) ) ? true : carriesTaint;
+							case 4: carriesTaint = ( basicblock.tanitedVarSet.contains((Object)r5instr.getRegisterG()) ) ? true : carriesTaint;
 						}
 					}
 				} else if (format == Format.Format3rc) {
 					Instruction3rc instr3rc = (Instruction3rc) ins.instruction;
 					for (int l = 0; l < instr3rc.getRegisterCount(); ++l) {
-						carriesTaint = ( currentStr.tanitedVarSet.contains( (Object)(instr3rc.getStartRegister()+l)) ) ? true : carriesTaint;
+						carriesTaint = ( basicblock.tanitedVarSet.contains( (Object)(instr3rc.getStartRegister()+l)) ) ? true : carriesTaint;
 					}
 				}
 
@@ -170,18 +181,18 @@ public class FunctionLeakFinder {
 					for(Method method: classDef.getMethods()) {
 						if (method.getName().equals(reference.getName())) {
 							functionDefFound = true;
-							ReturnStructure newStr = new ReturnStructure(currentStr.tanitedVarSet, ins, method);  // mapping
+							ReturnStructure newStr = new ReturnStructure(basicblock.tanitedVarSet, ins, method);  // mapping
 							new FunctionLeakFinder(method, newStr, location);
 							if (newStr.isRetValTainted == true) {
-								currentStr.tanitedVarSet.add(varsThisInstTouches.get(varsThisInstTouches.size()-1));
+								basicblock.tanitedVarSet.add(varsThisInstTouches.get(varsThisInstTouches.size()-1));
 							}
 
-							currentStr.tanitedVarSet.addAll(newStr.reverseMap());  // merge sets after doing reverse mapping
+							basicblock.tanitedVarSet.addAll(newStr.reverseMap());  // merge sets after doing reverse mapping
 							break;
 						}
 					}
 				}
-				if (!functionDefFound) currentStr.tanitedVarSet.addAll(varsThisInstTouches);
+				if (!functionDefFound) basicblock.tanitedVarSet.addAll(varsThisInstTouches);
 
 			} else {  // this instruction is not a function call
 				ArrayList<TreeSet<Object>> varsThisInstTouches = Analyzer.getSourceAndDest(ins);
@@ -190,7 +201,7 @@ public class FunctionLeakFinder {
 				}
 				// registers overwritten with a constant are no longer tainted
 				for (Object o: varsThisInstTouches.get(2)) {
-						currentStr.tanitedVarSet.remove(o);
+						basicblock.tanitedVarSet.remove(o);
 				}
 
 				if (varsThisInstTouches.get(0).size() == 0 || varsThisInstTouches.get(1).size() == 0) {
@@ -198,9 +209,9 @@ public class FunctionLeakFinder {
 				}
 
 				boolean taintedInstruction = false;
-				for (Object o : currentStr.tanitedVarSet) {
+				for (Object o : basicblock.tanitedVarSet) {
 					if (varsThisInstTouches.get(0).contains(o)) {
-						currentStr.tanitedVarSet.addAll(varsThisInstTouches.get(1));
+						basicblock.tanitedVarSet.addAll(varsThisInstTouches.get(1));
 						taintedInstruction = true;
 						break;
 					}
@@ -208,7 +219,7 @@ public class FunctionLeakFinder {
 
 				// destination is overwritten
 				if (taintedInstruction == false) {
-					currentStr.tanitedVarSet.removeAll(varsThisInstTouches.get(1));
+					basicblock.tanitedVarSet.removeAll(varsThisInstTouches.get(1));
 				}
 			}
 		}
