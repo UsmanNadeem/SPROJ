@@ -206,7 +206,7 @@ public class LeakFinder {
 					// 	System.out.println("========================================================================");
 					// }
 					for(Method method: classDef.getMethods()) {
-						if (method.getName().equals(reference.getName())) {
+						if (method.getName().equals(reference.getName()) && method.getImplementation() != null) {
 							functionDefFound = true;
 							ReturnStructure newStr = new ReturnStructure(basicblock.tanitedVarSet, ins, method);  // mapping
 							new FunctionLeakFinder(method, newStr, location+"\nIn Class: "+classDef.getSourceFile()+" In function: "+

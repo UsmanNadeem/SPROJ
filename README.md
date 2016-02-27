@@ -22,6 +22,7 @@ This will create a file:
 	Arguments:
 		-apk <filename>
 		-dex <filename>
+		-d OR -displayOnly 				Do not find leaks Only display sources and sinks
 
 e.g to find leaks in app.apk execute:
 
