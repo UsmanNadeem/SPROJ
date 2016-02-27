@@ -54,8 +54,7 @@ public class LeakFinder {
 
 		for(final ClassDef classDef: classDefs) {
 			// dont want library functions.
-			if (classDef.getType().contains("android")) continue;
-
+			if (classDef.getType().startsWith("Landroid")) continue;
 			for(Method method: classDef.getMethods()) {
 
 				ControlFlowGraph cfg = new ControlFlowGraph(method);
@@ -224,7 +223,7 @@ public class LeakFinder {
 				for(final ClassDef classDef: classDefs) {
 					if (functionDefFound) break;
 					if (!classDef.getType().startsWith(definingClass)) continue;
-					if (classDef.getType().contains("android")) continue;
+					if (classDef.getType().startsWith("Landroid")) continue;
 					// if (reference.getName().equals("dummyFunctionForDEMO")) {
 					// 	System.out.println(definingClass);
 					// 	System.out.println(classDef.getType());

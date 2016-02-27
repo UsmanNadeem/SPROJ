@@ -50,6 +50,9 @@ import cern.colt.matrix.impl.SparseDoubleMatrix2D;
 import java.util.Map;
 import java.util.HashMap;
 
+import com.beust.jcommander.JCommander;
+
+
 public class SPROJ {
 		
 	public static DexBackedDexFile loadFile(String name) {
@@ -80,30 +83,24 @@ public class SPROJ {
 		return dexFile;
 	}
 	
-	static String CLASS = "L";
 	public static DexBackedDexFile FILE;
 	public static void main(String[] args) throws IOException {
-		if (args.length < 3) {
+		JCommanderArguments jCommArgs = new JCommanderArguments();
+		try {
+	        new JCommander(jCommArgs, args);
+		} catch (Exception e) {
 			System.out.println("Usage:");
-			System.out.println("\tjava -jar <jar file> <classes.dex/apkfile> <com/example/android/bluetoothchat/> <l or d>");
-			System.out.println("\tWhere <com/example/android/bluetoothchat/> is the name of package of interest in the .dex file");
-			System.out.println("\tand  l means find leaks and d means display all sources and sinks");
+			System.out.println("\tjava -jar target/SPROJ-1.0-jar-with-dependencies.jar -apk bluetooth.apk");
 			return;
 		}
-		DexBackedDexFile dexFile = SPROJ.loadFile(args[0]);
-		FILE = dexFile;
-		SPROJ.CLASS += args[1];
 
-		if (args[2].equals("l")) {
-			LeakFinder.findLeaks(dexFile);
-		} else if (args[2].equals("d")) {
+		DexBackedDexFile dexFile = SPROJ.loadFile(jCommArgs.dexFile);
+		FILE = dexFile;
+
+		if (jCommArgs.onlyDisplay) {
 			SourceSinkIdentifier.findAllSourcesSinks(dexFile);
 		} else {
-			System.out.println("Usage:");
-			System.out.println("\tjava -jar <jar file> <classes.dex/apkfile> <com/example/android/bluetoothchat/> <l or d>");
-			System.out.println("\tWhere <com/example/android/bluetoothchat/> is the name of package of interest in the .dex file");
-			System.out.println("\tand  l means find leaks and d means display all sources and sinks");
-			return;
+			LeakFinder.findLeaks(dexFile);
 		}
 	}
 }

@@ -20,9 +20,13 @@ This will create a file:
 `java -jar target/SPROJ-1.0-jar-with-dependencies.jar <args>`
 
 	Arguments:
-		<-apk filename> OR <-dex filename>
-		<-d or -displayOnly> Optional argument if you do not want to find leaks. Only displays calls to sources and sinks.
+		-apk <filename>
+		-dex <filename>
 
-e.g to find leaks in app.apk execute
+e.g to find leaks in app.apk execute:
 
-	java -jar target/SPROJ-1.0-jar-with-dependencies.jar -apk app.apk
+	java -jar target/SPROJ-1.0-jar-with-dependencies.jar -apk bluetooth.apk
+
+Or if you want to write output to a file:
+
+	java -jar target/SPROJ-1.0-jar-with-dependencies.jar -apk bluetooth.apk > output.txt
