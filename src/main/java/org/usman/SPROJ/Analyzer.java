@@ -173,7 +173,7 @@ public class Analyzer {
 
 	public static List<Object> getVarThisFunctionTouches(BasicBlockInstruction instruction, BasicBlock basicblock) {
 		Format format = instruction.instruction.getOpcode().format;
-		Opcode opcode = instruction.instruction.getOpcode();
+		// Opcode opcode = instruction.instruction.getOpcode();
 		List<Object> retval = new ArrayList<Object>();
 
 		if (format == Format.Format35c) {  // function call

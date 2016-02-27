@@ -24,7 +24,6 @@ import com.google.common.collect.Ordering;
 public class LeakFinder {
 
 	public static void findLeaks(DexBackedDexFile dexFile) throws IOException{
-		ArrayList<String> toPrint = new ArrayList<String>();
 
 		List<? extends ClassDef> classDefs = Ordering.natural().sortedCopy(dexFile.getClasses());
 
