@@ -53,8 +53,8 @@ public class LeakFinder {
 		List<? extends ClassDef> classDefs = Ordering.natural().sortedCopy(dexFile.getClasses());
 
 		for(final ClassDef classDef: classDefs) {
-			// dont want library functions. for now hardcode the main application class.
-			if (!classDef.getType().startsWith(SPROJ.CLASS)) continue;
+			// dont want library functions.
+			if (classDef.getType().contains("android")) continue;
 
 			for(Method method: classDef.getMethods()) {
 
@@ -224,7 +224,7 @@ public class LeakFinder {
 				for(final ClassDef classDef: classDefs) {
 					if (functionDefFound) break;
 					if (!classDef.getType().startsWith(definingClass)) continue;
-					if (!classDef.getType().startsWith(SPROJ.CLASS)) continue;
+					if (classDef.getType().contains("android")) continue;
 					// if (reference.getName().equals("dummyFunctionForDEMO")) {
 					// 	System.out.println(definingClass);
 					// 	System.out.println(classDef.getType());

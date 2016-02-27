@@ -51,8 +51,8 @@ public class SourceSinkIdentifier {
 		List<? extends ClassDef> classDefs = Ordering.natural().sortedCopy(dexFile.getClasses());
 
 		for(final ClassDef classDef: classDefs) {
-			// dont want library functions. for now hardcode the main application class.
-			if (!classDef.getType().startsWith(SPROJ.CLASS)) continue;
+			// dont want library functions.
+			if (classDef.getType().contains("android")) continue;
 
 			// System.out.println("In Class: "+classDef.getSourceFile()+"  "+classDef.getType()+"\n");
 

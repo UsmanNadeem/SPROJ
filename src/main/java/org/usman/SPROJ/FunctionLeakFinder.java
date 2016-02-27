@@ -176,7 +176,7 @@ public class FunctionLeakFinder {
 				for(final ClassDef classDef: classDefs) {
 					if (functionDefFound) break;
 					if (!classDef.getType().startsWith(definingClass)) continue;
-					if (!classDef.getType().startsWith(SPROJ.CLASS)) continue;
+					if (classDef.getType().contains("android")) continue;
 
 					for(Method method: classDef.getMethods()) {
 						if (method.getName().equals(reference.getName())) {
