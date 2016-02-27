@@ -116,7 +116,10 @@ public class FunctionLeakFinder {
 				// }
 
 				// check if this function call touches any of the tainted variables
-				if (!carriesTaint) { continue; }
+				if (!carriesTaint) { 
+					basicblock.tanitedVarSet.remove(varsThisInstTouches.get(varsThisInstTouches.size()-1));
+					continue;
+				}
 				// look for method
 
 
@@ -158,6 +161,8 @@ public class FunctionLeakFinder {
 							new FunctionLeakFinder(method, newStr, location);
 							if (newStr.isRetValTainted == true) {
 								basicblock.tanitedVarSet.add(varsThisInstTouches.get(varsThisInstTouches.size()-1));
+							} else {
+								basicblock.tanitedVarSet.remove(varsThisInstTouches.get(varsThisInstTouches.size()-1));
 							}
 
 							basicblock.tanitedVarSet.addAll(newStr.reverseMap());  // merge sets after doing reverse mapping

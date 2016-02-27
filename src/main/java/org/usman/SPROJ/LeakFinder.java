@@ -147,7 +147,10 @@ public class LeakFinder {
 				}
 
 				// check if this function call touches any of the tainted variables
-				if (!carriesTaint) { continue; }
+				if (!carriesTaint) {
+					basicblock.tanitedVarSet.remove(varsThisInstTouches.get(varsThisInstTouches.size()-1));
+					continue;
+				}
 
 				// if (reference.getName().equals("write")) {
 				// 	System.out.println(definingClass + " ");
@@ -179,6 +182,10 @@ public class LeakFinder {
 			        if (line.startsWith(sink)) {
 						System.out.println("\n\n\n****************LEAK FOUND:****************");
 						System.out.println(location);
+
+						// for (Object aa : basicblock.tanitedVarSet) {
+						// 	System.out.println(aa);
+						// }
 						
 						System.out.println("\n"+location.substring(location.indexOf("In Class:"), location.indexOf("Source:")-1));
 						System.out.println("Sink = " + line);
@@ -213,6 +220,8 @@ public class LeakFinder {
 								method.getName());
 							if (newStr.isRetValTainted == true) {
 								basicblock.tanitedVarSet.add(varsThisInstTouches.get(varsThisInstTouches.size()-1));
+							} else {
+								basicblock.tanitedVarSet.remove(varsThisInstTouches.get(varsThisInstTouches.size()-1));
 							}
 							basicblock.tanitedVarSet.addAll(newStr.reverseMap());  // merge sets after doing reverse mapping
 							// System.out.println("\n\n\n*********** "+classDef.getType() + "----> "+ method.getName() +" ---> "+location );
