@@ -1,48 +1,24 @@
 package org.usman.SPROJ;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Arrays;
-
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.TreeSet;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-
-
-import org.jf.dexlib2.iface.ClassDef;
-import org.jf.dexlib2.iface.instruction.Instruction;
-import org.jf.dexlib2.iface.instruction.ReferenceInstruction;
-import org.jf.dexlib2.iface.TryBlock;
-import org.jf.dexlib2.iface.ExceptionHandler;
-import org.jf.dexlib2.iface.Method;
-import org.jf.dexlib2.iface.MethodImplementation;
-import org.jf.dexlib2.dexbacked.DexBackedDexFile;
-import org.jf.dexlib2.DexFileFactory;
-import org.jf.util.ExceptionWithContext;
-
-import org.jf.dexlib2.dexbacked.instruction.*;
-import org.jf.dexlib2.iface.instruction.*;
-import org.jf.dexlib2.dexbacked.instruction.DexBackedInstruction;
-import org.jf.dexlib2.dexbacked.reference.*;
-import org.jf.dexlib2.iface.reference.*;
-import org.jf.dexlib2.ReferenceType;
-import org.jf.dexlib2.iface.instruction.ThreeRegisterInstruction;
-import org.jf.dexlib2.iface.instruction.TwoRegisterInstruction;
-import org.jf.dexlib2.iface.instruction.OneRegisterInstruction;
 import org.jf.dexlib2.Format;
-import java.util.*;
-import java.lang.*;
-import org.jf.dexlib2.iface.instruction.formats.*;
-
-import org.jf.dexlib2.*;
 import org.jf.dexlib2.Opcode;
+import org.jf.dexlib2.dexbacked.DexBackedDexFile;
+import org.jf.dexlib2.dexbacked.reference.DexBackedMethodReference;
+import org.jf.dexlib2.iface.ClassDef;
+import org.jf.dexlib2.iface.Method;
+import org.jf.dexlib2.iface.instruction.FiveRegisterInstruction;
+import org.jf.dexlib2.iface.instruction.ReferenceInstruction;
+import org.jf.dexlib2.iface.instruction.formats.Instruction3rc;
+
 import com.google.common.collect.Ordering;
 
 public class LeakFinder {

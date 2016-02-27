@@ -1,10 +1,10 @@
 
 package org.usman.SPROJ;
 
-import org.jf.dexlib2.iface.instruction.Instruction;
-import org.jf.dexlib2.dexbacked.DexBackedDexFile;
-import org.jf.dexlib2.dexbacked.instruction.DexBackedInstruction;
 import java.util.List;
+
+import org.jf.dexlib2.dexbacked.instruction.DexBackedInstruction;
+import org.jf.dexlib2.iface.instruction.Instruction;
 
 public class BasicBlockInstruction {
 	Instruction instruction;
