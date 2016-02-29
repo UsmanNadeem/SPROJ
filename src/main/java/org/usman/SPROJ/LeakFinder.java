@@ -30,6 +30,7 @@ public class LeakFinder {
 		for(final ClassDef classDef: classDefs) {
 			// dont want library functions.
 			if (classDef.getType().startsWith("Landroid")) continue;
+			if (classDef.getType().startsWith("Ljava")) continue;
 			for(Method method: classDef.getMethods()) {
 
 				ControlFlowGraph cfg = new ControlFlowGraph(method);
@@ -197,15 +198,40 @@ public class LeakFinder {
 			    // todo: patch up
 			    if (isSink) { continue; }  // no need to analyze this function
 
+			    // DEBUG INFO
+				// System.out.println(definingClass);
+				// System.out.print(ins.instruction.getOpcode());
+				// if (format == Format.Format35c) {
+				// 	FiveRegisterInstruction r5instr = (FiveRegisterInstruction)refIns;
+				// 	for (int l = 0;l<r5instr.getRegisterCount() ;++l ) {
+				// 		switch (l) {
+				// 			case 0: System.out.print(r5instr.getRegisterC()+" ");
+				// 			case 1: System.out.print(r5instr.getRegisterD()+" ");
+				// 			case 2: System.out.print(r5instr.getRegisterE()+" ");
+				// 			case 3: System.out.print(r5instr.getRegisterF()+" ");
+				// 			case 4: System.out.print(r5instr.getRegisterG()+" ");
+				// 		}
+				// 	}
+				// } else if (format == Format.Format3rc) {
+				// 	Instruction3rc instr3rc = (Instruction3rc) ins.instruction;
+				// 	for (int l = 0; l < instr3rc.getRegisterCount(); ++l) {
+				// 		System.out.print((instr3rc.getStartRegister()+l) + " ");
+				// 	}
+				// }
+				// System.out.println("\n"+SPROJ.DEPTH+"\n\n");
+				//
 
 			    // if cant find funcdefinition i.e. library function then no need to analyze this function tanitedVarSet.addAll(varsThisInstTouches);
 				
 				boolean functionDefFound = false;
+				if (SPROJ.DEPTH < SPROJ.MAX_DEPTH) {
+					
 				List<? extends ClassDef> classDefs = Ordering.natural().sortedCopy(SPROJ.FILE.getClasses());
 				for(final ClassDef classDef: classDefs) {
 					if (functionDefFound) break;
 					if (!classDef.getType().startsWith(definingClass)) continue;
 					if (classDef.getType().startsWith("Landroid")) continue;
+					if (classDef.getType().startsWith("Ljava")) continue;
 					// if (reference.getName().equals("dummyFunctionForDEMO")) {
 					// 	System.out.println(definingClass);
 					// 	System.out.println(classDef.getType());
@@ -215,9 +241,11 @@ public class LeakFinder {
 					for(Method method: classDef.getMethods()) {
 						if (method.getName().equals(reference.getName()) && method.getImplementation() != null) {
 							functionDefFound = true;
+							SPROJ.DEPTH++;
 							ReturnStructure newStr = new ReturnStructure(basicblock.tanitedVarSet, ins, method);  // mapping
 							new FunctionLeakFinder(method, newStr, location+"\nIn Class: "+classDef.getSourceFile()+" In function: "+
 								method.getName());
+							SPROJ.DEPTH--;
 							if (newStr.isRetValTainted == true) {
 								basicblock.tanitedVarSet.add(varsThisInstTouches.get(varsThisInstTouches.size()-1));
 							} else {
@@ -228,6 +256,7 @@ public class LeakFinder {
 							break;
 						}
 					}
+				}
 				}
 				if (!functionDefFound) basicblock.tanitedVarSet.addAll(varsThisInstTouches);
 

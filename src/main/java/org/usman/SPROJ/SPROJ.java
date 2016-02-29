@@ -10,7 +10,7 @@ import com.beust.jcommander.JCommander;
 
 
 public class SPROJ {
-		
+	
 	public static DexBackedDexFile loadFile(String name) {
 		File dexFileFile = new File(name);
 		DexBackedDexFile dexFile = null;
@@ -40,6 +40,8 @@ public class SPROJ {
 	}
 	
 	public static DexBackedDexFile FILE;
+	public static int MAX_DEPTH = 5;
+	public static int DEPTH = 0;
 	public static void main(String[] args) throws IOException {
 		JCommanderArguments jCommArgs = new JCommanderArguments();
 		try {

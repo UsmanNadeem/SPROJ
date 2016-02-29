@@ -23,6 +23,7 @@ public class SourceSinkIdentifier {
 		for(final ClassDef classDef: classDefs) {
 			// dont want library functions.
 			if (classDef.getType().startsWith("Landroid")) continue;
+			if (classDef.getType().startsWith("Ljava")) continue;
 
 			// System.out.println("In Class: "+classDef.getSourceFile()+"  "+classDef.getType()+"\n");
 
