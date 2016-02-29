@@ -39,7 +39,7 @@ public class FunctionLeakFinder {
 			try {
 				taintAnalysis(bb, basicblocks, structure, location);
 			} catch (Exception e) {
-				System.err.println(e);
+				e.printStackTrace();
 			}
 
 
@@ -48,7 +48,7 @@ public class FunctionLeakFinder {
 			}
 		}
 	}
-	public void taintAnalysis(BasicBlock basicblock, List<BasicBlock> basicblocks, ReturnStructure currentStr, String location) throws Exception{
+	public void taintAnalysis(BasicBlock basicblock, List<BasicBlock> basicblocks, ReturnStructure currentStr, String location) {
 
 		for (BasicBlock bb : basicblocks) {
 			if (bb.destinations == null) continue;
@@ -115,8 +115,8 @@ public class FunctionLeakFinder {
 				// }
 
 				// check if this function call touches any of the tainted variables
-				if (!carriesTaint) { 
-					basicblock.tanitedVarSet.remove(varsThisInstTouches.get(varsThisInstTouches.size()-1));
+				if (!carriesTaint && varsThisInstTouches.size() > 0) {
+					basicblock.tanitedVarSet.remove(varsThisInstTouches.get(varsThisInstTouches.size()-1));  // todo: check for case when no return val
 					continue;
 				}
 				// look for method
@@ -124,21 +124,25 @@ public class FunctionLeakFinder {
 
 				// check if it is a sink
 				boolean isSink = false;
-				File sourceFile = new File("Android_4.2_Sinks.txt");
-			    BufferedReader br = new BufferedReader(new FileReader(sourceFile));
-			    String line;
-			    while ((line = br.readLine()) != null) {
-			    	// sink found
-			    	String sink = InstructionFormater.getFormatedFunctionCall(ins);
-			        if (line.startsWith(sink)) {
-						System.out.println("\n\n\n****************LEAK FOUND:****************");
-						System.out.println(location);
-						// System.out.println("\nIn Class: "+definingClass+" In function: "+reference.getName());
-						System.out.println("sink = " + line);
-						isSink = true;
-						break;
-			        }
-			    }
+				try {
+					File sourceFile = new File("Android_4.2_Sinks.txt");
+				    BufferedReader br = new BufferedReader(new FileReader(sourceFile));
+				    String line;
+				    while ((line = br.readLine()) != null) {
+				    	// sink found
+				    	String sink = InstructionFormater.getFormatedFunctionCall(ins);
+				        if (line.startsWith(sink)) {
+							System.out.println("\n\n\n****************LEAK FOUND:****************");
+							System.out.println(location);
+							// System.out.println("\nIn Class: "+definingClass+" In function: "+reference.getName());
+							System.out.println("sink = " + line);
+							isSink = true;
+							break;
+				        }
+				    }
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			    // todo: patch up
 			    if (isSink) { continue; }  // no need to analyze this function
 

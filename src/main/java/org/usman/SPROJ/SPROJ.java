@@ -42,7 +42,7 @@ public class SPROJ {
 	public static DexBackedDexFile FILE;
 	public static int MAX_DEPTH = 5;
 	public static int DEPTH = 0;
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) {
 		JCommanderArguments jCommArgs = new JCommanderArguments();
 		try {
 	        new JCommander(jCommArgs, args);

@@ -16,7 +16,7 @@ import com.google.common.collect.Ordering;
 
 
 public class SourceSinkIdentifier {
-	public static void findAllSourcesSinks(DexBackedDexFile dexFile) throws IOException{
+	public static void findAllSourcesSinks(DexBackedDexFile dexFile) {
 		ArrayList<String> toPrint = new ArrayList<String>();
 		List<? extends ClassDef> classDefs = Ordering.natural().sortedCopy(dexFile.getClasses());
 
@@ -47,7 +47,7 @@ public class SourceSinkIdentifier {
 
 					    		String possibleSourceSink = InstructionFormater.getFormatedFunctionCall(instruction);
 								// match with list of sinks
-								{
+								try {
 									File sinkFile = new File("Android_4.2_Sinks.txt");
 									BufferedReader br = new BufferedReader(new FileReader(sinkFile));
 								    String line;
@@ -69,10 +69,12 @@ public class SourceSinkIdentifier {
 											break;
 								        }
 								    }
+								} catch (Exception e) {
+									e.printStackTrace();
 								}
 
 								// match with list of sources
-								{
+								try {
 									File sourceFile = new File("Android_4.2_Sources.txt");
 								    BufferedReader br = new BufferedReader(new FileReader(sourceFile));
 								    String line;
@@ -94,6 +96,8 @@ public class SourceSinkIdentifier {
 											break;
 								        }
 								    }
+								} catch (Exception e) {
+									e.printStackTrace();
 								}
 					   //  		ReferenceInstruction i = (ReferenceInstruction)instruction.instruction;
 								// DexBackedMethodReference r = (DexBackedMethodReference)i.getReference();

@@ -23,7 +23,7 @@ import com.google.common.collect.Ordering;
 
 public class LeakFinder {
 
-	public static void findLeaks(DexBackedDexFile dexFile) throws IOException{
+	public static void findLeaks(DexBackedDexFile dexFile) {
 
 		List<? extends ClassDef> classDefs = Ordering.natural().sortedCopy(dexFile.getClasses());
 
@@ -48,40 +48,45 @@ public class LeakFinder {
 						if(opcode.referenceType == 3) {  // 3 == Method reference type
 							String possibleSourceSink = InstructionFormater.getFormatedFunctionCall(instruction);
 							// match with list of sources
-							File sourceFile = new File("Android_4.2_Sources.txt");
-						    BufferedReader br = new BufferedReader(new FileReader(sourceFile));
-						    String line;
-						    while ((line = br.readLine()) != null) {
-						    	// source found
-						        if (line.startsWith(possibleSourceSink)) {
-						        	String location = "In Class: "+classDef.getSourceFile()+" In function: "+method.getName()+ "\nSource: "+line;
+							try {
+								File sourceFile = new File("Android_4.2_Sources.txt");
+							    BufferedReader br = new BufferedReader(new FileReader(sourceFile));
+							    String line;
+							    while ((line = br.readLine()) != null) {
+							    	// source found
+							        if (line.startsWith(possibleSourceSink)) {
+							        	String location = "In Class: "+classDef.getSourceFile()+" In function: "+method.getName()+ "\nSource: "+line;
 
-									LinkedList<BasicBlock> queue = new LinkedList<BasicBlock>();
-									queue.add(basicblock);
-									for (BasicBlock bb : basicblocks) {
-										bb.clearVisited();
-										bb.clearTaints();
-									}
-
-									basicblock.setVisited();
-									boolean firstTime = true;
-									
-									while (queue.size() != 0) {
-										BasicBlock bb = queue.remove();
-										if (firstTime) {
-											firstTime = false;
-											LeakFinder.searchForPathtoSink(instruction, bb, basicblocks, location);
-										} else {
-											LeakFinder.searchForPathtoSink(null, bb, basicblocks, location);
+										LinkedList<BasicBlock> queue = new LinkedList<BasicBlock>();
+										queue.add(basicblock);
+										for (BasicBlock bb : basicblocks) {
+											bb.clearVisited();
+											bb.clearTaints();
 										}
 
-							        	if (bb.outgoingEdges != 0) {
-											LeakFinder.addChildrenToQueue(bb, basicblocks, queue);
+										basicblock.setVisited();
+										boolean firstTime = true;
+										
+										while (queue.size() != 0) {
+											BasicBlock bb = queue.remove();
+											if (firstTime) {
+												firstTime = false;
+												LeakFinder.searchForPathtoSink(instruction, bb, basicblocks, location);
+											} else {
+												LeakFinder.searchForPathtoSink(null, bb, basicblocks, location);
+											}
+
+								        	if (bb.outgoingEdges != 0) {
+												LeakFinder.addChildrenToQueue(bb, basicblocks, queue);
+											}
 										}
-									}
-									break;
-						        }
-						    }
+										break;
+							        }
+							    }
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+
 						}
 					}
 				}
@@ -92,7 +97,7 @@ public class LeakFinder {
 	
 
 	public static void searchForPathtoSink(BasicBlockInstruction srcInstruction, BasicBlock basicblock, 
-		List<BasicBlock> basicblocks, String location) throws IOException{
+		List<BasicBlock> basicblocks, String location) {
 
 		for (BasicBlock bb : basicblocks) {
 			if (bb.destinations == null) continue;
@@ -175,26 +180,30 @@ public class LeakFinder {
 				// check if it is a sink
 				boolean isSink = false;
 				File sourceFile = new File("Android_4.2_Sinks.txt");
-			    BufferedReader br = new BufferedReader(new FileReader(sourceFile));
-			    String line;
-			    while ((line = br.readLine()) != null) {
-			    	// sink found
-			    	String sink = InstructionFormater.getFormatedFunctionCall(ins);
-			        if (line.startsWith(sink)) {
-						System.out.println("\n\n\n****************LEAK FOUND:****************");
-						System.out.println(location);
+				try {
+				    BufferedReader br = new BufferedReader(new FileReader(sourceFile));
+				    String line;
+				    while ((line = br.readLine()) != null) {
+				    	// sink found
+				    	String sink = InstructionFormater.getFormatedFunctionCall(ins);
+				        if (line.startsWith(sink)) {
+							System.out.println("\n\n\n****************LEAK FOUND:****************");
+							System.out.println(location);
 
-						// for (Object aa : basicblock.tanitedVarSet) {
-						// 	System.out.println(aa);
-						// }
-						
-						System.out.println("\n"+location.substring(location.indexOf("In Class:"), location.indexOf("Source:")-1));
-						System.out.println("Sink = " + line);
-						// System.out.println("In Class: "+classDef.getSourceFile()+" In function: "+method.getName());
-						isSink = true;
-						break;
-			        }
-			    }
+							// for (Object aa : basicblock.tanitedVarSet) {
+							// 	System.out.println(aa);
+							// }
+							
+							System.out.println("\n"+location.substring(location.indexOf("In Class:"), location.indexOf("Source:")-1));
+							System.out.println("Sink = " + line);
+							// System.out.println("In Class: "+classDef.getSourceFile()+" In function: "+method.getName());
+							isSink = true;
+							break;
+				        }
+				    }
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			    // todo: patch up
 			    if (isSink) { continue; }  // no need to analyze this function
 
