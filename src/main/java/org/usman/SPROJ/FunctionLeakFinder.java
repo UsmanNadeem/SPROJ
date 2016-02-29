@@ -191,7 +191,7 @@ public class FunctionLeakFinder {
 							SPROJ.DEPTH--;
 							if (newStr.isRetValTainted == true) {
 								basicblock.tanitedVarSet.add(varsThisInstTouches.get(varsThisInstTouches.size()-1));
-							} else {
+							} else if (varsThisInstTouches.size() > 0){
 								basicblock.tanitedVarSet.remove(varsThisInstTouches.get(varsThisInstTouches.size()-1));
 							}
 
