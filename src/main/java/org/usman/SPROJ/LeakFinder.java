@@ -48,9 +48,10 @@ public class LeakFinder {
 						if(opcode.referenceType == 3) {  // 3 == Method reference type
 							String possibleSourceSink = InstructionFormater.getFormatedFunctionCall(instruction);
 							// match with list of sources
+							BufferedReader br = null;
 							try {
 								File sourceFile = new File("Android_4.2_Sources.txt");
-							    BufferedReader br = new BufferedReader(new FileReader(sourceFile));
+							    br = new BufferedReader(new FileReader(sourceFile));
 							    String line;
 							    while ((line = br.readLine()) != null) {
 							    	// source found
@@ -85,6 +86,12 @@ public class LeakFinder {
 							    }
 							} catch (Exception e) {
 								e.printStackTrace();
+							} finally {
+								try {
+									br.close();
+								} catch (Exception e) {
+									e.printStackTrace();
+								}
 							}
 
 						}
@@ -179,9 +186,10 @@ public class LeakFinder {
 
 				// check if it is a sink
 				boolean isSink = false;
+				BufferedReader br = null;
 				File sourceFile = new File("Android_4.2_Sinks.txt");
 				try {
-				    BufferedReader br = new BufferedReader(new FileReader(sourceFile));
+					br = new BufferedReader(new FileReader(sourceFile));
 				    String line;
 				    while ((line = br.readLine()) != null) {
 				    	// sink found
@@ -203,8 +211,14 @@ public class LeakFinder {
 				    }
 				} catch (Exception e) {
 					e.printStackTrace();
+				} finally {
+					try {
+						br.close();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 				}
-			    // todo: patch up
+				// todo: patch up
 			    if (isSink) { continue; }  // no need to analyze this function
 
 			    // DEBUG INFO

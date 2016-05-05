@@ -124,26 +124,35 @@ public class FunctionLeakFinder {
 
 				// check if it is a sink
 				boolean isSink = false;
-				try {
-					File sourceFile = new File("Android_4.2_Sinks.txt");
-				    BufferedReader br = new BufferedReader(new FileReader(sourceFile));
-				    String line;
-				    while ((line = br.readLine()) != null) {
-				    	// sink found
-				    	String sink = InstructionFormater.getFormatedFunctionCall(ins);
-				        if (line.startsWith(sink)) {
-							System.out.println("\n\n\n****************LEAK FOUND:****************");
-							System.out.println(location);
-							// System.out.println("\nIn Class: "+definingClass+" In function: "+reference.getName());
-							System.out.println("sink = " + line);
-							isSink = true;
-							break;
-				        }
-				    }
-				} catch (Exception e) {
-					e.printStackTrace();
+				{
+					BufferedReader br = null;
+					try {
+						File sourceFile = new File("Android_4.2_Sinks.txt");
+						br = new BufferedReader(new FileReader(sourceFile));
+						String line;
+						while ((line = br.readLine()) != null) {
+							// sink found
+							String sink = InstructionFormater.getFormatedFunctionCall(ins);
+							if (line.startsWith(sink)) {
+								System.out.println("\n\n\n****************LEAK FOUND:****************");
+								System.out.println(location);
+								// System.out.println("\nIn Class: "+definingClass+" In function: "+reference.getName());
+								System.out.println("sink = " + line);
+								isSink = true;
+								break;
+							}
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+					} finally {
+						try {
+							br.close();
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					}
 				}
-			    // todo: patch up
+				// todo: patch up
 			    if (isSink) { continue; }  // no need to analyze this function
 
 			    // DEBUG INFO
