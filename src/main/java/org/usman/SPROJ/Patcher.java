@@ -66,49 +66,49 @@ public class Patcher {
                     }
 
                     if (sourceType.contains("Ljava/lang/String")){
-                        line = indentation+"const-string v"+(latestTotalNumRegisters-1)+", \"usman\"";
+                        line = "\n"+indentation+"const-string v"+(latestTotalNumRegisters-1)+", \"usman\"\n";
                         output.add(line);
-                        line = indentation+".local v"+(latestTotalNumRegisters-1)+", \"myString\":Ljava/lang/String;";
+                        line = indentation+".local v"+(latestTotalNumRegisters-1)+", \"myString\":Ljava/lang/String;\n";
                         output.add(line);
                     } else if (sourceType.equals("I")){
-                        line = indentation+"const/16 v"+(latestTotalNumRegisters-1)+", 0x37";
+                        line = "\n"+indentation+"const/16 v"+(latestTotalNumRegisters-1)+", 0x37\n";
                         output.add(line);
-                        line = indentation+".local v"+(latestTotalNumRegisters-1)+", \"myint\":I";
+                        line = indentation+".local v"+(latestTotalNumRegisters-1)+", \"myint\":I\n";
                         output.add(line);
                     } else if (sourceType.equals("F")){
-                        line = indentation+"const v"+(latestTotalNumRegisters-1)+", 0x440ac000    # 555.0f";
+                        line = "\n"+indentation+"const v"+(latestTotalNumRegisters-1)+", 0x440ac000    # 555.0f\n";
                         output.add(line);
-                        line = indentation+".local v"+(latestTotalNumRegisters-1)+", \"myfloat\":F";
+                        line = indentation+".local v"+(latestTotalNumRegisters-1)+", \"myfloat\":F\n";
                         output.add(line);
                     } else if (sourceType.equals("Z")){
-                        line = indentation+"const/4 v"+(latestTotalNumRegisters-1)+", 0x1";
+                        line = "\n"+indentation+"const/4 v"+(latestTotalNumRegisters-1)+", 0x1\n";
                         output.add(line);
-                        line = indentation+".local v"+(latestTotalNumRegisters-1)+", \"myboolean\":Z";
+                        line = indentation+".local v"+(latestTotalNumRegisters-1)+", \"myboolean\":Z\n";
                         output.add(line);
                     } else if (sourceType.equals("B")){
-                        line = indentation+"const/4 v"+(latestTotalNumRegisters-1)+", 0x5";
+                        line = "\n"+indentation+"const/4 v"+(latestTotalNumRegisters-1)+", 0x5\n";
                         output.add(line);
-                        line = indentation+".local v"+(latestTotalNumRegisters-1)+", \"mybyte\":B";
+                        line = indentation+".local v"+(latestTotalNumRegisters-1)+", \"mybyte\":B\n";
                         output.add(line);
                     } else if (sourceType.equals("S")){
-                        line = indentation+"const/16 v"+(latestTotalNumRegisters-1)+", 0x37";
+                        line = "\n"+indentation+"const/16 v"+(latestTotalNumRegisters-1)+", 0x37\n";
                         output.add(line);
-                        line = indentation+".local v"+(latestTotalNumRegisters-1)+", \"myshort\":S";
+                        line = indentation+".local v"+(latestTotalNumRegisters-1)+", \"myshort\":S\n";
                         output.add(line);
                     } else if (sourceType.equals("C")){
-                        line = indentation+"const/16 v"+(latestTotalNumRegisters-1)+", 0x61";
+                        line = "\n"+indentation+"const/16 v"+(latestTotalNumRegisters-1)+", 0x61\n";
                         output.add(line);
-                        line = indentation+".local v"+(latestTotalNumRegisters-1)+", \"mychar\":C";
+                        line = indentation+".local v"+(latestTotalNumRegisters-1)+", \"mychar\":C\n";
                         output.add(line);
                     } else if (sourceType.equals("J")){
-                        line = indentation+"const-wide/16 v"+(latestTotalNumRegisters-1)+", 0x22b";
+                        line = "\n"+indentation+"const-wide/16 v"+(latestTotalNumRegisters-1)+", 0x22b\n";
                         output.add(line);
-                        line = indentation+".local v"+(latestTotalNumRegisters-1)+", \"mylong\":J";
+                        line = indentation+".local v"+(latestTotalNumRegisters-1)+", \"mylong\":J\n";
                         output.add(line);
                     } else if (sourceType.equals("D")){
-                        line = indentation+"const-wide v"+(latestTotalNumRegisters-1)+", 0x4081580000000000L    # 555.0";
+                        line = "\n"+indentation+"const-wide v"+(latestTotalNumRegisters-1)+", 0x4081580000000000L    # 555.0\n";
                         output.add(line);
-                        line = indentation+".local v"+(latestTotalNumRegisters-1)+", \"mydouble\":D";
+                        line = indentation+".local v"+(latestTotalNumRegisters-1)+", \"mydouble\":D\n";
                         output.add(line);
                     }
                     continue;
