@@ -1,6 +1,8 @@
 package org.usman.SPROJ;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by Usman on 06-May-16.
@@ -32,14 +34,23 @@ public class Patcher {
         try {
             br = new BufferedReader(new FileReader(file));
             String line;
+            int latestTotalNumRegisters = 0;
             while ((line = br.readLine()) != null) {
                 if (!inTargetFunction && line.startsWith(".method") && line.contains(methodName) && line.contains(methodReturnType)) {
                     inTargetFunction = true;
-                } else if (line.startsWith(".end method")) {
+                }
+                if (line.startsWith(".end method")) {
                     inTargetFunction = false;
-                } else if (line.startsWith("    .locals ") && inTargetFunction) {
-                    line = "    .locals " + (registerCount-methodParamNum+1);  // increase locals by one
-                } else if (line.contains(sourceLine) && line.endsWith(sourceType)) {
+                }
+                if (line.startsWith("    .locals ") && inTargetFunction) {
+                    Pattern pattern = Pattern.compile("[0-9]+");
+                    Matcher matcher = pattern.matcher(line);
+
+                    matcher.find();
+                    latestTotalNumRegisters = Integer.parseInt(matcher.group())+1;
+                    line = "    .locals " + (Integer.parseInt(matcher.group())+1);  // increase locals by one
+                }
+                if (line.contains(sourceLine) && line.endsWith(sourceType) && inTargetFunction) {
                     output.add(line);
                     sourceScopeStarted = true;
                     line = br.readLine(); // blank line
@@ -55,61 +66,65 @@ public class Patcher {
                     }
 
                     if (sourceType.contains("Ljava/lang/String")){
-                        line = indentation+"const-string v"+(registerCount-methodParamNum)+", \"usman\"";
+                        line = indentation+"const-string v"+(latestTotalNumRegisters-1)+", \"usman\"";
                         output.add(line);
-                        line = indentation+".local v"+(registerCount-methodParamNum)+", \"myString\":Ljava/lang/String;";
+                        line = indentation+".local v"+(latestTotalNumRegisters-1)+", \"myString\":Ljava/lang/String;";
                         output.add(line);
                     } else if (sourceType.equals("I")){
-                        line = indentation+"const/16 v"+(registerCount-methodParamNum)+", 0x37";
+                        line = indentation+"const/16 v"+(latestTotalNumRegisters-1)+", 0x37";
                         output.add(line);
-                        line = indentation+".local v"+(registerCount-methodParamNum)+", \"myint\":I";
+                        line = indentation+".local v"+(latestTotalNumRegisters-1)+", \"myint\":I";
                         output.add(line);
                     } else if (sourceType.equals("F")){
-                        line = indentation+"const v"+(registerCount-methodParamNum)+", 0x440ac000    # 555.0f";
+                        line = indentation+"const v"+(latestTotalNumRegisters-1)+", 0x440ac000    # 555.0f";
                         output.add(line);
-                        line = indentation+".local v"+(registerCount-methodParamNum)+", \"myfloat\":F";
+                        line = indentation+".local v"+(latestTotalNumRegisters-1)+", \"myfloat\":F";
                         output.add(line);
                     } else if (sourceType.equals("Z")){
-                        line = indentation+"const/4 v"+(registerCount-methodParamNum)+", 0x1";
+                        line = indentation+"const/4 v"+(latestTotalNumRegisters-1)+", 0x1";
                         output.add(line);
-                        line = indentation+".local v"+(registerCount-methodParamNum)+", \"myboolean\":Z";
+                        line = indentation+".local v"+(latestTotalNumRegisters-1)+", \"myboolean\":Z";
                         output.add(line);
                     } else if (sourceType.equals("B")){
-                        line = indentation+"const/4 v"+(registerCount-methodParamNum)+", 0x5";
+                        line = indentation+"const/4 v"+(latestTotalNumRegisters-1)+", 0x5";
                         output.add(line);
-                        line = indentation+".local v"+(registerCount-methodParamNum)+", \"mybyte\":B";
+                        line = indentation+".local v"+(latestTotalNumRegisters-1)+", \"mybyte\":B";
                         output.add(line);
                     } else if (sourceType.equals("S")){
-                        line = indentation+"const/16 v"+(registerCount-methodParamNum)+", 0x37";
+                        line = indentation+"const/16 v"+(latestTotalNumRegisters-1)+", 0x37";
                         output.add(line);
-                        line = indentation+".local v"+(registerCount-methodParamNum)+", \"myshort\":S";
+                        line = indentation+".local v"+(latestTotalNumRegisters-1)+", \"myshort\":S";
                         output.add(line);
                     } else if (sourceType.equals("C")){
-                        line = indentation+"const/16 v"+(registerCount-methodParamNum)+", 0x61";
+                        line = indentation+"const/16 v"+(latestTotalNumRegisters-1)+", 0x61";
                         output.add(line);
-                        line = indentation+".local v"+(registerCount-methodParamNum)+", \"mychar\":C";
+                        line = indentation+".local v"+(latestTotalNumRegisters-1)+", \"mychar\":C";
                         output.add(line);
                     } else if (sourceType.equals("J")){
-                        line = indentation+"const-wide/16 v"+(registerCount-methodParamNum)+", 0x22b";
+                        line = indentation+"const-wide/16 v"+(latestTotalNumRegisters-1)+", 0x22b";
                         output.add(line);
-                        line = indentation+".local v"+(registerCount-methodParamNum)+", \"mylong\":J";
+                        line = indentation+".local v"+(latestTotalNumRegisters-1)+", \"mylong\":J";
                         output.add(line);
                     } else if (sourceType.equals("D")){
-                        line = indentation+"const-wide v"+(registerCount-methodParamNum)+", 0x4081580000000000L    # 555.0";
+                        line = indentation+"const-wide v"+(latestTotalNumRegisters-1)+", 0x4081580000000000L    # 555.0";
                         output.add(line);
-                        line = indentation+".local v"+(registerCount-methodParamNum)+", \"mydouble\":D";
+                        line = indentation+".local v"+(latestTotalNumRegisters-1)+", \"mydouble\":D";
                         output.add(line);
                     }
                     continue;
-                } else if (line.contains(".end local v"+registerNum)) {
+                }
+                if (line.contains(".end local v"+registerNum)) {
+                    sourceScopeStarted = false;
+                }
+                if (line.contains("move-res") && line.contains("v"+registerNum)) {
                     sourceScopeStarted = false;
                 }
                 // replace everything
                 if (sourceScopeStarted && inTargetFunction) {
-                    String newRegNum = "v"+(registerCount-methodParamNum);
+                    String newRegNum = "v"+(latestTotalNumRegisters-1);
                     String oldRegNum = "v"+registerNum;
                     if (line.contains(oldRegNum)) {
-                        line.replaceAll(oldRegNum, newRegNum);
+                        line = line.replaceAll(oldRegNum, newRegNum);
                     }
                 }
                 output.add(line);
