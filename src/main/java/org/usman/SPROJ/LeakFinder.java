@@ -56,7 +56,21 @@ public class LeakFinder {
 							    while ((line = br.readLine()) != null) {
 							    	// source found
 							        if (line.startsWith(possibleSourceSink)) {
-							        	String location = "In Class: "+classDef.getSourceFile()+" In function: "+method.getName()+ "\nSource: "+line;
+										//String location = "In Class: "+classDef.getSourceFile()+" In function: "+method.getName()+ "\nSource: "+line;
+										ReferenceInstruction targeti = (ReferenceInstruction)instruction.instruction;
+										DexBackedMethodReference targetr = (DexBackedMethodReference)targeti.getReference();
+										List<String> params = targetr.getParameterTypes();
+
+										String location = classDef.getType().substring(1,classDef.getType().length()-1)+".smali\n"+
+												method.getName()+ "\n" +method.getReturnType()+"\n"+
+												method.getParameters().size()+"\n"+method.getImplementation().getRegisterCount()+"\n, "+
+												targetr.getDefiningClass()+"->"+targetr.getName()+"(";
+										for (String param:params) {
+											location += param;
+										}
+										location+= ")\n";
+										location+=targetr.getReturnType()+"\n";
+										location+=Analyzer.getVarThisFunctionTouches(instruction, basicblock).get(Analyzer.getVarThisFunctionTouches(instruction, basicblock).size()-1);
 
 										LinkedList<BasicBlock> queue = new LinkedList<BasicBlock>();
 										queue.add(basicblock);
@@ -132,13 +146,14 @@ public class LeakFinder {
 						++i;  // skip the next instruction which is a return call
 					}
 				}
+				if (varsThisInstTouches.size()==0) { continue; }
 				if (srcInstruction == ins) {  // this instruction is the source
-					basicblock.tanitedVarSet.addAll(varsThisInstTouches);
+					// basicblock.tanitedVarSet.addAll(varsThisInstTouches);
+					basicblock.tanitedVarSet.add(varsThisInstTouches.get(varsThisInstTouches.size()-1));
 					continue;
 				}
 
-				if (varsThisInstTouches.size()==0) { continue; }
-				
+
 				boolean carriesTaint = false;
 				if (format == Format.Format35c) {
 					FiveRegisterInstruction r5instr = (FiveRegisterInstruction)refIns;
@@ -195,15 +210,15 @@ public class LeakFinder {
 				    	// sink found
 				    	String sink = InstructionFormater.getFormatedFunctionCall(ins);
 				        if (line.startsWith(sink)) {
-							System.out.println("\n\n\n****************LEAK FOUND:****************");
+							//System.out.println("\n\n\n****************LEAK FOUND:****************");
 							System.out.println(location);
 
 							// for (Object aa : basicblock.tanitedVarSet) {
 							// 	System.out.println(aa);
 							// }
 							
-							System.out.println("\n"+location.substring(location.indexOf("In Class:"), location.indexOf("Source:")-1));
-							System.out.println("Sink = " + line);
+							//System.out.println("\n"+location.substring(location.indexOf("In Class:"), location.indexOf("Source:")-1));
+							//System.out.println("Sink = " + line);
 							// System.out.println("In Class: "+classDef.getSourceFile()+" In function: "+method.getName());
 							isSink = true;
 							break;
@@ -266,8 +281,7 @@ public class LeakFinder {
 							functionDefFound = true;
 							SPROJ.DEPTH++;
 							ReturnStructure newStr = new ReturnStructure(basicblock.tanitedVarSet, ins, method);  // mapping
-							new FunctionLeakFinder(method, newStr, location+"\nIn Class: "+classDef.getSourceFile()+" In function: "+
-								method.getName());
+							new FunctionLeakFinder(method, newStr, location);
 							SPROJ.DEPTH--;
 							if (newStr.isRetValTainted == true) {
 								basicblock.tanitedVarSet.add(varsThisInstTouches.get(varsThisInstTouches.size()-1));

@@ -134,10 +134,10 @@ public class FunctionLeakFinder {
 							// sink found
 							String sink = InstructionFormater.getFormatedFunctionCall(ins);
 							if (line.startsWith(sink)) {
-								System.out.println("\n\n\n****************LEAK FOUND:****************");
+//								System.out.println("\n\n\n****************LEAK FOUND:****************");
 								System.out.println(location);
 								// System.out.println("\nIn Class: "+definingClass+" In function: "+reference.getName());
-								System.out.println("sink = " + line);
+//								System.out.println("sink = " + line);
 								isSink = true;
 								break;
 							}
