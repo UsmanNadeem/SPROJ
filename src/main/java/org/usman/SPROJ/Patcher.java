@@ -145,6 +145,7 @@ public class Patcher {
 
         BufferedReader br = null;
         File sourceFile = new File("input.txt");
+        ///////
         try {
             br = new BufferedReader(new FileReader(sourceFile));
             String line;
