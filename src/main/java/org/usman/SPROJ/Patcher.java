@@ -52,11 +52,15 @@ public class Patcher {
 //                }
                 if (line.contains(sourceLine) && line.endsWith(sourceType) && inTargetFunction) {
                     output.add(line);
-                    sourceScopeStarted = true;
+//                    sourceScopeStarted = true;
                     line = br.readLine(); // blank line
                     output.add(line);
                     line = br.readLine(); // move-result most probably
-//                    output.add(line);  // dont move the result into a register
+                    if (!line.endsWith("v"+registerNum)) {
+                        // to check if it is the same source that leads to the sink and not a similar source that doesnot
+                        output.add(line);
+                        continue;
+                    }
 
                     int numIndentation = line.indexOf("move-res");
                     if (numIndentation == -1) numIndentation = 0;
