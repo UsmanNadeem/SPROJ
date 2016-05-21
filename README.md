@@ -27,11 +27,11 @@ This will create a file:
 
 e.g to find leaks in app.apk execute:
 
-	java -jar target/SPROJ-1.0-jar-with-dependencies.jar -apk bluetooth.apk
+	java -jar SPROJ-forDemo.jar SPROJ -apk appName.apk
 
 Or if you want to write output to a file:
 
-	java -jar target/SPROJ-1.0-jar-with-dependencies.jar -apk bluetooth.apk > output.txt
+	java -jar SPROJ-forDemo.jar SPROJ -apk appName.apk > output.txt
 
 FOR PATCHING:
 
